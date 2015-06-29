@@ -10,7 +10,8 @@
  *
  *  Created by Robert Valladares and Danish Waheed on 06/01/15.
  *  Copyright (c) 2015 ROBERT VALLADARES and DANISH WAHEED. All rights reserved.
- *  UPDATED CharType functions 6/19/2015
+ *  UPDATED CharType functions 6/19/2015 to binary search --DEPRECATED
+ *  UPDATED CharType functions 6/29/2015 to O(1) search with int arrays of 1's, 0's
  */
 
 // Library declarations
