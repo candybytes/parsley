@@ -11,7 +11,6 @@
  *  Created by Robert Valladares and Danish Waheed on 06/01/15.
  *  Copyright (c) 2015 ROBERT VALLADARES and DANISH WAHEED. All rights reserved.
  */
- 
 #ifndef __GLOBALS_H
 #define __GLOBALS_H
 
@@ -27,7 +26,8 @@ int m_nCleanInputTokens = 0;                // global variable to track count of
 #define MAX_WORDS 15                        // define the number of reserved words
 #define INVALID_INT 2147483647              // define the long_max int value in case number string is invalid
 #define MAX_VAR_LEN 11                      // defines the masx length of a normal variable
-#define MAX_ERROR 34			    // defines the max amount of error messages
+#define MAX_ERROR 34                        // defines the max amount of error messages
+#define MAX_ASCII 128                       // defines the max amount of ascii characters
 
 
 //global strings for input output file names
@@ -63,14 +63,14 @@ typedef enum {lexConstant = 1, lexVar, lexProc} eLexemeKind;
 
 //structure of the symbol table record
 typedef struct {
-
+    
     int TokenType;      // token type
     int kind;           // constant = 1; var = 2, proc = 3
     char name[12];      // name up to 11 characters long, 11 + 1 for \0
     int val;            // number (ASCII value)
     int level;          // L level
     int adr;            // M address
-
+    
 } namerecord_t;
 
 
@@ -86,8 +86,8 @@ int m_naWsym[] = { nulsym, beginsym, callsym, constsym, dosym, elsesym, endsym, 
 // special punctuation symbols
 char m_caSpecialSymbols[] = {'(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>'};
 
- // special punctuation symbols enumerator values
-int m_naSpecialSymbols[] = {lparentsym, rparentsym, multsym, plussym, commasym, minussym, periodsym, slashsym,  becomessym,   semicolonsym, lessym, eqlsym, gtrsym};
+// special punctuation symbols enumerator values
+int m_naSpecialSymbols[] = {lparentsym, rparentsym, multsym, plussym, commasym, minussym, periodsym, slashsym,  becomessym,  semicolonsym, lessym, eqlsym, gtrsym};
 
 // special punctuation ascii values
 int m_naSpecSymPunt[] = {40, 41, 42, 43, 44, 45, 46, 47, 58, 59, 60, 61, 62};
@@ -109,6 +109,11 @@ int m_naPunctChars[] = {9, 33,34,35,36,37,38,39,40,41,42,
 
 int m_naNumericalChars[] = {48,49,50,51,52,53,54,55,56,57};
 
+int g_naIsAlphaChar[MAX_ASCII];
+int g_naIsPunctChar[MAX_ASCII];
+int g_naIsNumerical[MAX_ASCII];
+int g_naIsSpecialChar[MAX_ASCII];
+
 // enumerator of the error numbers
 typedef enum {
     err1 = 1, err2, err3, err4, err5, err6,
@@ -120,7 +125,7 @@ typedef enum {
 } g_eErrorMsgs;
 
 char *g_caErrorMsgs[] = {
-
+    
     "Use = instead of :=.",//1
     "= must be followed by a number.",//2
     "Identifier must be followed by =.",//3
@@ -155,11 +160,13 @@ char *g_caErrorMsgs[] = {
     "invalid pair of symbols",//32
     "failed to initialized Namerecord_table",//33
     "failed to store lexeme in Namerecord_table"//34
-
+    
 };
 
 // global function declaration
 void printError(int ErrorNumber, char *strToken);
+void gInitGlobalintIsCharArrays();
 
 
 #endif
+

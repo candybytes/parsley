@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "globals.h"
+#include "globals2.h"
 
 
 //------------------ global constants and given constants by assigment -------
@@ -65,6 +65,8 @@ int main(int argc, char *argv[]) {
         FNS[input_txt] = argv[1];
     }
     
+    // initialize global ctype int arrays
+    gInitGlobalintIsCharArrays();
     // create file pointers for input output
     // createFilePointers handles null pointer exception
     createFilePointers();
@@ -130,17 +132,18 @@ int main(int argc, char *argv[]) {
     
     // ---------------------- deprecated for #3 ----------------------
     /* / deprecated for #3
-    printf("\nYou can find the input/ output files: \n");
-    for (i = 0; i < MAX_FILES; i++) {
-        // print the file names that were used and created
-        printf("%s \n", FNS[i]);
-        
-    }
-    printf("in the same folder where scanner.c is located \n\n");
-    */ // deprecated for #3
+     printf("\nYou can find the input/ output files: \n");
+     for (i = 0; i < MAX_FILES; i++) {
+     // print the file names that were used and created
+     printf("%s \n", FNS[i]);
+     
+     }
+     printf("in the same folder where scanner.c is located \n\n");
+     */ // deprecated for #3
     // ---------------------- deprecated for #3 ----------------------
     
     // program finished, if no error were found, it will reach this point
+    
     
     return 0;
 }
@@ -312,6 +315,7 @@ void cleanInput(FILE *fp, char src[], int count, char cleanSrc[]){
  * "fileReadError(char fileName[], int reading)"
  * prints a standard file read-open-write error message
  * if int reading = 1, then print reading, else reading = 0 = writing
+ *  -----------DEPRECATED, NO LONGER NEEDED, WILL DELETE AT A LATER TIME -------------
  *
  */
 void fileReadError(char fileName[], int writing ){
@@ -408,13 +412,10 @@ void splitInputTokens(char cleanSrc[], char *caCleanInputTokens[]){
  *   check if character passed is a special Symbol punctuation
  */
 int isSpecialChar(char c){
+    // if char c is a special char it will have a non 0 return with offset of 1
+    // that will be handled by caller
+    return g_naIsSpecialChar[ (int)c ];
     
-    // transform char into number
-    int target = (int)c;
-    int result = 0;
-    // ascii codes for special punctuation chars are from 40 and beyond
-    return ( (target > 39) && (result = binarySearch (m_naSpecSymPunt, SpecialCharTop, target)) ) ? result : 0;
-
 }
 
 /*
@@ -565,7 +566,7 @@ void IdentifyInputToken(char *caCleanInputTokens[], namerecord_t *record_table){
         if ( ( rw = isReserverdWord(str) ) && tknlen > 1 ){
             // insert token record in record_table
             insertNamerecord_table(LexRecordIndex++, record_table, lexProc, 0, ' ', ' ', str, m_naWsym[(rw - 1)] );
-
+            
             continue;
         }
         
@@ -575,14 +576,14 @@ void IdentifyInputToken(char *caCleanInputTokens[], namerecord_t *record_table){
             
             // insert token record in record_table
             insertNamerecord_table(LexRecordIndex++, record_table, lexConstant, 0, ' ', ' ', str, 3 );
-
+            
             continue;
         }
         
         // check if token is variable
         if  (isValidVariableAndNotReserved(str)){
             // if is invalid length or illegal variable, it will fail at check
-
+            
             // insert token record in record_table
             insertNamerecord_table(LexRecordIndex++, record_table, lexVar, 0, ' ', ' ', str, 2 );
             
@@ -665,6 +666,7 @@ int validSymbolPair(char c1, char c2){
  *  binarySearch (int *Array, int top, int target)
  *  search for a char c ascii value, if it is in list of values in Array passed
  *  return 1, else is not found return 0;
+ *  -----------DEPRECATED, NO LONGER NEEDED, WILL DELETE AT A LATER TIME -------------
  */
 int binarySearch (int *Array, int top, int target) {
     // Given a ascending sorted Array[0..top],
@@ -696,11 +698,9 @@ int binarySearch (int *Array, int top, int target) {
  *  return 1 if char is a digit, 0 if not
  */
 int isDigit(char c){
-    // transform char into number
-    int target = (int)c;
-    // ascii codes for numerical chars are from 48 to 57
-    return ((target > 47) && (binarySearch (m_naNumericalChars, NumberTop, target)) ) ? 1 : 0;
-
+    // if char c is a number, it will return a 1, else 0 as found in global array
+    return g_naIsNumerical[ (int)c ];
+    
 }
 
 /*
@@ -708,10 +708,8 @@ int isDigit(char c){
  *  return 2 if char is an alpha, 0 if not
  */
 int isAlpha(char c){
-    // transform char into number
-    int target = (int)c;
-    // ascii codes for alpha chars are from 65 forward
-    return  ( ( (target > 64) && ( binarySearch (m_naAlphaChars, AlphaTop, target) ) ) ? 2 : 0 );
+    // if char c is a letter, it will return a 1, else 0 as found in global array
+    return g_naIsAlphaChar[ (int)c ] * 2;
     
 }
 
@@ -720,11 +718,9 @@ int isAlpha(char c){
  *  return 3 if char is an punctuation, 0 if not
  */
 int isPunct(char c){
-    // transform char into number
-    int target = (int)c;
-    // ascii codes for alpha chars are from [ 9 ] & 65 forward
-    return ( ( (target > 9) && ( binarySearch (m_naPunctChars, PunctTop, target) ) ) ? 3 : 0 );
-
+    // if char c is a punctuation, it will return a 1, else 0 as found in global array
+    return g_naIsPunctChar[ (int)c ] * 3;
+    
 }
 
 /*
@@ -853,7 +849,32 @@ void printError(int ErrorNumber, char *strToken){
     
 }
 
-
+/*
+ *  gInitGlobalintIsCharArrays()
+ *  Initialize all the ischar arrays to 0 zero first
+ *  then initialize to 1 those chars that belong to each group
+ */
+void gInitGlobalintIsCharArrays(){
+    
+    int i = 0, p = 0, n = 0, s = 0, temp = 0;
+    
+    // initialize all indexes to 0
+    for (i = 0; i < MAX_ASCII; i++) {
+        g_naIsAlphaChar[i] = g_naIsPunctChar[i] = g_naIsNumerical[i] = g_naIsSpecialChar[i] = 0;
+    }
+    // set each array index to 1 or 0 is char belongs to group
+    // for special characters, set the global index to the special chars index containing the lexememe value with
+    // an offset of 1, i.e. index 0 == 1, to allow searches in spcial char lexeme array with offset of -1
+    for (i = 0; i < AlphaTop; i++, n++, s++, p++ ) {
+        
+        ( n < NumberTop ) ?  g_naIsNumerical[ m_naNumericalChars[n] ] = 1 : 0;
+        ( s < SpecialCharTop ) ? g_naIsSpecialChar[ m_naSpecSymPunt[s] ] = (s + 1) : 0;
+        ( p < PunctTop ) ?  g_naIsPunctChar[ m_naPunctChars[p] ] = 1 : 0;
+        g_naIsAlphaChar[ m_naAlphaChars[i] ] = 1;
+        
+    }
+    
+}
 
 
 
