@@ -63,14 +63,14 @@ typedef enum {lexConstant = 1, lexVar, lexProc} eLexemeKind;
 
 //structure of the symbol table record
 typedef struct {
-    
+
     int TokenType;      // token type
     int kind;           // constant = 1; var = 2, proc = 3
     char name[12];      // name up to 11 characters long, 11 + 1 for \0
     int val;            // number (ASCII value)
     int level;          // L level
     int adr;            // M address
-    
+
 } namerecord_t;
 
 
@@ -125,7 +125,7 @@ typedef enum {
 } g_eErrorMsgs;
 
 char *g_caErrorMsgs[] = {
-    
+
     "Use = instead of :=.",//1
     "= must be followed by a number.",//2
     "Identifier must be followed by =.",//3
@@ -160,14 +160,13 @@ char *g_caErrorMsgs[] = {
     "invalid pair of symbols",//32
     "failed to initialized Namerecord_table",//33
     "failed to store lexeme in Namerecord_table"//34
-    
+
 };
 
 // global function declaration
 void printError(int ErrorNumber, char *strToken);
 void gInitGlobalintIsCharArrays();
 
-//Testing github one more time
 
 
 #endif
