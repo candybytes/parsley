@@ -31,11 +31,7 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="globals.h" />
-		<Unit filename="parser.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="scanner3.c">
+		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Extensions>
