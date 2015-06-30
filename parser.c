@@ -18,7 +18,7 @@
 #include <string.h>
 #include "globals.h"    // for this demo because I am using MAX_VAR_LEN from global.h
 
-int inputTokens = 1;    // used to count the amount of tokens in lexemelist.txt
+int inputTokens = 0;    // used to count the amount of tokens in lexemelist.txt
 
 //--------------------local data structures ---------------
 
@@ -37,6 +37,7 @@ void FreeMemoryAllocFront_to_Tail(NODE *head);
 
 // -----------------Initial call to program  -----------------
 int main(int argc, char *argv[]) {
+    int i = 0;
     
     FILE *ifp = NULL;
     ifp = fopen("lexemelist.txt", "r");
@@ -55,14 +56,26 @@ int main(int argc, char *argv[]) {
     
     while (fscanf(ifp, "%s", iToken) != EOF) {
         // instead of printf, just create a new node of linked list with string
-        printf("%s\n", iToken);
+        // or add them to a char * array, less code
         ListHead = InsertAtTail(ListHead, iToken);
         inputTokens++;
         
     }
+    
+    // ----------test print ------------- //
     printf("%d tokens \n", inputTokens);
     
+    NODE *temp = NULL;
+    temp = ListHead;
+    for (i =0; i < inputTokens; i++) {
+        printf("token %s\n", temp->token);
+        temp =  temp->next != NULL ? temp->next : temp;
+        
+    }
+    // ----------test print ------------- //
+    
     // clean up after using the read tokens, you need to free the calloc spaced
+    // when you are done with it
     if(ListHead != NULL) { FreeMemoryAllocFront_to_Tail(ListHead); ListHead = NULL;}
     
     // close the input file
@@ -86,7 +99,7 @@ NODE *NewNode(char str[]){
     if (brandNewNode != NULL) {
         // store the value pass in nData
         strcpy(brandNewNode->token, str);
-        //brandNewNode->token = nData;
+        brandNewNode->token[MAX_VAR_LEN] = '\0';
         // set the node next pointer to null
         brandNewNode->next = NULL;
         
