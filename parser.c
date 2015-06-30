@@ -37,7 +37,10 @@ void FreeMemoryAllocFront_to_Tail(NODE *head);
 
 // -----------------Initial call to program  -----------------
 int main(int argc, char *argv[]) {
+<<<<<<< HEAD
     int i = 0;
+=======
+>>>>>>> parent of eb5d5af... 06/30/2015
     
     FILE *ifp = NULL;
     ifp = fopen("lexemelist.txt", "r");
@@ -45,15 +48,22 @@ int main(int argc, char *argv[]) {
         printf("Need to add error number for file open here\n");
     }
     
+<<<<<<< HEAD
     // create a new ListHead
     NODE *ListHead = NULL;
     
+=======
+>>>>>>> parent of eb5d5af... 06/30/2015
     // will do linked list of char* to store each token without knowing count of tokens
     // and have a local-global token counter
     // all tokens no matter what, will be max length of 12
     char iToken[MAX_VAR_LEN + 1];  // One extra for nul char. //
     
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> parent of eb5d5af... 06/30/2015
     while (fscanf(ifp, "%s", iToken) != EOF) {
         // instead of printf, just create a new node of linked list with string
         // or add them to a char * array, less code
@@ -81,6 +91,7 @@ int main(int argc, char *argv[]) {
     // close the input file
     fclose(ifp);
     
+<<<<<<< HEAD
     
     return 0;
 }
@@ -178,4 +189,10 @@ void FreeMemoryAllocFront_to_Tail(NODE *head){
         head = NULL;
     }
     
+=======
+
+    
+    
+    return 0;
+>>>>>>> parent of eb5d5af... 06/30/2015
 }
