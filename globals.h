@@ -73,6 +73,9 @@ typedef struct {
 
 } namerecord_t;
 
+// mcode struct defenition
+
+
 
 // ---Assignment #3 editing
 //  reserved words numerical representation from the token_type enum
