@@ -1,0 +1,7 @@
+potato    	  pot4t0 29  12742 +  - 	* / 	odd =	
+<
+ <= > >= (   )    , ; .  := begin 		end   if  then while 
+ do call  const 
+  var procedure 
+write 
+read 	else 

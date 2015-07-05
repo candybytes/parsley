@@ -14,6 +14,25 @@
 #ifndef __GLOBALS_H
 #define __GLOBALS_H
 
+// START vm.c parser.c globals ----------------------------------------------
+
+struct instructions {
+    int OP; /* OP_code */
+    int L;	/* L_code */
+    int M;	/* M_code */
+};
+
+char *OPCODES[] = {"---","lit","opr","lod","sto","cal","inc","jmp","jpc","sio"};
+typedef enum {lit = 1,opr,lod,sto,cal,inc,jmp,jpc,sio} eOPCODE;
+
+char *STACKOPS[] = {"ret","neg","add","sub","mul","div","odd","mod","eql","neq","lss","leq","gtr","geq"};
+// div is a reserved word from the compiler in c, can not be redeclared, use div_ instead for enum
+typedef enum {ret, neg, add, sub, mul, div_, odd, mod, eql, neq, lss, leq, gtr, geq} eSTACKOPS; // div is reserved word
+
+// END vm.c parser.c globals ----------------------------------------------
+
+// START scanner.c parser.c globals ----------------------------------------------
+
 
 #define MAX_NUMBER_DIGITS 5                 // Defines how many digits an integer can have
 #define MAX_IDENTIFIER_LENGTH 11            // Defines how long an identifier string can be
@@ -38,7 +57,7 @@ typedef enum {input_txt, cleaninput_txt, lexemetable_txt, lexemelist_txt} eFNS;
 FILE *m_FPS[MAX_FILES];
 
 //------------------------- global data structures ------------------------
-// ---Assignment #3 editing
+
 // string representation of the symbols, char array starts at index 0, compensate with offset of 1
 // with lexeme values
 char *m_sa_token_type[] = {
@@ -63,21 +82,17 @@ typedef enum {lexConstant = 1, lexVar, lexProc} eLexemeKind;
 
 //structure of the symbol table record
 typedef struct {
-
+    
     int TokenType;      // token type
     int kind;           // constant = 1; var = 2, proc = 3
     char name[12];      // name up to 11 characters long, 11 + 1 for \0
     int val;            // number (ASCII value)
     int level;          // L level
     int adr;            // M address
-
+    
 } namerecord_t;
 
-// mcode struct defenition
 
-
-
-// ---Assignment #3 editing
 //  reserved words numerical representation from the token_type enum
 char *saWsym[] = { "nulsym", "beginsym", "callsym", "constsym", "dosym", "elsesym", "endsym", "ifsym", "oddsym", "procsym", "readsym", "thensym", "varsym", "whilesym", "writesym"};
 
@@ -89,7 +104,7 @@ int m_naWsym[] = { nulsym, beginsym, callsym, constsym, dosym, elsesym, endsym, 
 // special punctuation symbols
 char m_caSpecialSymbols[] = {'(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>'};
 
-// special punctuation symbols enumerator values
+ // special punctuation symbols enumerator values
 int m_naSpecialSymbols[] = {lparentsym, rparentsym, multsym, plussym, commasym, minussym, periodsym, slashsym,  becomessym,  semicolonsym, lessym, eqlsym, gtrsym};
 
 // special punctuation ascii values
@@ -124,11 +139,12 @@ typedef enum {
     err13, err14, err15, err16, err17, err18,
     err19, err20, err21, err22, err23, err24,
     err25, err26, err27, err28, err29, err30,
-    err31, err32, err33, err34, err35, err36
+    err31, err32, err33, err34, err35
 } g_eErrorMsgs;
 
+// error strings array, mostly used in parser for token sequence checking
 char *g_caErrorMsgs[] = {
-
+    
     "Use = instead of :=.",//1
     "= must be followed by a number.",//2
     "Identifier must be followed by =.",//3
@@ -163,12 +179,15 @@ char *g_caErrorMsgs[] = {
     "invalid pair of symbols",//32
     "failed to initialized Namerecord_table",//33
     "failed to store lexeme in Namerecord_table"//34
-
+    "SC : failed to read lexemelist "//35
+    
 };
 
 // global function declaration
 void printError(int ErrorNumber, char *strToken);
 void gInitGlobalintIsCharArrays();
+
+// END scanner.c parser.c globals ----------------------------------------------
 
 
 
