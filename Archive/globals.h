@@ -14,25 +14,6 @@
 #ifndef __GLOBALS_H
 #define __GLOBALS_H
 
-// START vm.c parser.c globals ----------------------------------------------
-
-struct instructions {
-    int OP; /* OP_code */
-    int L;	/* L_code */
-    int M;	/* M_code */
-};
-
-char *OPCODES[] = {"---","lit","opr","lod","sto","cal","inc","jmp","jpc","sio"};
-typedef enum {lit = 1,opr,lod,sto,cal,inc,jmp,jpc,sio} eOPCODE;
-
-char *STACKOPS[] = {"ret","neg","add","sub","mul","div","odd","mod","eql","neq","lss","leq","gtr","geq"};
-// div is a reserved word from the compiler in c, can not be redeclared, use div_ instead for enum
-typedef enum {ret, neg, add, sub, mul, div_, odd, mod, eql, neq, lss, leq, gtr, geq} eSTACKOPS; // div is reserved word
-
-// END vm.c parser.c globals ----------------------------------------------
-
-// START scanner.c parser.c globals ----------------------------------------------
-
 
 #define MAX_NUMBER_DIGITS 5                 // Defines how many digits an integer can have
 #define MAX_IDENTIFIER_LENGTH 11            // Defines how long an identifier string can be
@@ -57,7 +38,7 @@ typedef enum {input_txt, cleaninput_txt, lexemetable_txt, lexemelist_txt} eFNS;
 FILE *m_FPS[MAX_FILES];
 
 //------------------------- global data structures ------------------------
-
+// ---Assignment #3 editing
 // string representation of the symbols, char array starts at index 0, compensate with offset of 1
 // with lexeme values
 char *m_sa_token_type[] = {
@@ -93,6 +74,7 @@ typedef struct {
 } namerecord_t;
 
 
+// ---Assignment #3 editing
 //  reserved words numerical representation from the token_type enum
 char *saWsym[] = { "nulsym", "beginsym", "callsym", "constsym", "dosym", "elsesym", "endsym", "ifsym", "oddsym", "procsym", "readsym", "thensym", "varsym", "whilesym", "writesym"};
 
@@ -104,7 +86,7 @@ int m_naWsym[] = { nulsym, beginsym, callsym, constsym, dosym, elsesym, endsym, 
 // special punctuation symbols
 char m_caSpecialSymbols[] = {'(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>'};
 
-// special punctuation symbols enumerator values
+ // special punctuation symbols enumerator values
 int m_naSpecialSymbols[] = {lparentsym, rparentsym, multsym, plussym, commasym, minussym, periodsym, slashsym,  becomessym,  semicolonsym, lessym, eqlsym, gtrsym};
 
 // special punctuation ascii values
@@ -139,12 +121,9 @@ typedef enum {
     err13, err14, err15, err16, err17, err18,
     err19, err20, err21, err22, err23, err24,
     err25, err26, err27, err28, err29, err30,
-    err31, err32, err33, err34, err35, err36,
-    err37, err38, err39, err40
-    
+    err31, err32, err33, err34, err35, err36
 } g_eErrorMsgs;
 
-// error strings array, mostly used in parser for token sequence checking
 char *g_caErrorMsgs[] = {
     
     "Use = instead of :=.",//1
@@ -175,28 +154,18 @@ char *g_caErrorMsgs[] = {
     "Can not open file",//26
     "Can not read file",//27
     "Can not write to file",//28
-    "*/ end of comment-block missing",//29
+    "*/ end of comment block missing",//29
     "failed to allocate space using calloc",//30
     "invalid identsym",//31
     "invalid pair of symbols",//32
     "failed to initialized Namerecord_table",//33
     "failed to store lexeme in Namerecord_table"//34
-    "failed to read lexemelist "//35
-    "missing identifier"//36
-    "declaration must end with ;"//37
-    "missing procedure declaration ;"//38
-    "procedure declaration must end with ;"//39
-    "no ; at the end of block"//40
-    
-    
     
 };
 
 // global function declaration
 void printError(int ErrorNumber, char *strToken);
 void gInitGlobalintIsCharArrays();
-
-// END scanner.c parser.c globals ----------------------------------------------
 
 
 

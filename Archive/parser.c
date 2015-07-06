@@ -16,11 +16,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "globals.h"                // for this demo because I am using MAX_VAR_LEN from global.h
+#include "globals.h"    // for this demo because I am using MAX_VAR_LEN from global.h
 
-int m_n_inputTokens = 0;                // used to count the amount of tokens in lexemelist.txt
-int m_nCurrentToken = INVALID_INT;
-int m_nListIndex = 0;               //  used as linkedlist index;
+int inputTokens = 0;    // used to count the amount of tokens in lexemelist.txt
 
 //--------------------local data structures ---------------
 
@@ -34,11 +32,7 @@ typedef struct NODE{
 int sumEveryOtherNode(NODE *head);
 NODE *NewNode(char str[]);
 NODE *InsertAtTail(NODE *head, char str[]);
-NODE *getNextTokenNode(NODE *head);
-void processBlock(NODE *head);
-
 void FreeMemoryAllocFront_to_Tail(NODE *head);
-void analyzeLexemeList(NODE *head);
 
 
 // -----------------Initial call to program  -----------------
@@ -64,24 +58,21 @@ int main(int argc, char *argv[]) {
         // instead of printf, just create a new node of linked list with string
         // or add them to a char * array, less code
         ListHead = InsertAtTail(ListHead, iToken);
-        m_n_inputTokens++;
+        inputTokens++;
         
     }
     
     // ----------test print ------------- //
-    printf("%d tokens \n", m_n_inputTokens);
+    printf("%d tokens \n", inputTokens);
     
     NODE *temp = NULL;
     temp = ListHead;
-    for (i =0; i < m_n_inputTokens; i++) {
+    for (i =0; i < inputTokens; i++) {
         printf("token %s\n", temp->token);
         temp =  temp->next != NULL ? temp->next : temp;
         
     }
     // ----------test print ------------- //
-    
-    // call to analyse tokens -- parser
-    
     
     // clean up after using the read tokens, you need to free the calloc spaced
     // when you are done with it
@@ -89,12 +80,10 @@ int main(int argc, char *argv[]) {
     
     // close the input file
     fclose(ifp);
-    
+
     
     return 0;
 }
-
-//-----------------start -- read tokens in --------------------------
 
 /*
  *  struct node *NewNode(int nData)
@@ -190,108 +179,3 @@ void FreeMemoryAllocFront_to_Tail(NODE *head){
     }
     
 }
-
-//-----------------end -- read tokens in -------------------------------
-
-// ------------------start of analyze tokens ---------------------------
-/*
- * void analyzeLexemeList(NODE *head)
- * start of the top-down token analyser from lexemelist
- */
-void analyzeLexemeList(NODE *head){
-    // lexemelist has been read already and is stored in a linkedList
-    
-    NODE *nextTokenNode = NULL;
-    
-    
-    if ( head != NULL) {
-        // update the current token value and get the node pointer to next token
-        nextTokenNode = getNextTokenNode(head);
-        
-        // process code block
-        processBlock(nextTokenNode);
-        
-        // program should have ended after processing code block, look for periodsym
-        if (m_nCurrentToken != periodsym) {
-            printError(err9, " ");
-        }
-    }
-    
-    // if LinkedList is null or empty, return and print error
-    printError(err35, " ");
-    return;
-    
-    
-}
-
-NODE *getNextTokenNode(NODE *head){
-    
-    // if the head passed is not null, update the current token
-    // the list next index, and return the pointer to next list node
-    if ( head != NULL && m_nListIndex < m_n_inputTokens ) {
-        m_nCurrentToken = atoi(head->token);    // update the current token value
-        head = head->next;                      // next token node
-        m_nListIndex++;                         // next list index
-    } else {
-        m_nCurrentToken = INVALID_INT;          // if the head was NULL, set currentToken to invalid value
-    }
-    
-    return head;
-    
-}
-
-void processBlock(NODE *head){
-    
-    NODE *nextTokenNode = NULL;
-    
-    
-    if ( head != NULL) {
-        
-    }
-    
-}
-
-// ------------------end of analyze tokens ---------------------------
-
-
-/*
- *  printError(int ErrorNumber)
- *  Print the string that is represented by the error number passed
- */
-void printError(int ErrorNumber, char *strToken){
-    // always print what caused the error, then if error number is identified
-    // print error information, else general message outside "IF" statement
-    if(strToken) {
-        printf("Lexeme or token  %s  caused an error\n", strToken);
-    }
-    
-    // print the error message given an error number from g_caErrorMsgs[] char* array
-    if (ErrorNumber <= MAX_ERROR) {
-        // to find error string, substract offset of 1
-        printf("Error %d, %s\n", ErrorNumber, g_caErrorMsgs[ErrorNumber - 1]);
-        return;
-    }
-    // if error number is not in array, still print there is an error, but number
-    // not recognized
-    printf("Error, ErrorNumber %d not recognized\n", ErrorNumber);
-    return;
-    
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
