@@ -381,9 +381,12 @@ NODE *var_decl(NODE *head){
     nextTokenNode = head;
     
     if ( nextTokenNode != NULL){
-        // token is already 29, 
+        // token is already 2, next token is the variable name and not a numerical value
         // var a, b;  is the same as 29 2 a 17 2 b 18,
         // this is processing from a, b; a is variable thus the 2 a 17 2 b 18
+        // update the current token value and get the node pointer to next token
+        // need to check if variable is valid, does it start with a number?
+        
         
         // m_nCurrentToken is varsym 29  "var" at begining of do loop
         do {
@@ -410,7 +413,7 @@ NODE *var_decl(NODE *head){
             
         } while (m_nCurrentToken == commasym );
         
-        
+
         if (m_nCurrentToken != semicolonsym) {
             printError(err37, " ");
         }

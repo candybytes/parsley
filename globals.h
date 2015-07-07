@@ -45,7 +45,7 @@ int m_nCleanInputTokens = 0;                // global variable to track count of
 #define MAX_WORDS 15                        // define the number of reserved words
 #define INVALID_INT 2147483647              // define the long_max int value in case number string is invalid
 #define MAX_VAR_LEN 11                      // defines the masx length of a normal variable
-#define MAX_ERROR 34                        // defines the max amount of error messages
+#define MAX_ERROR 40                        // defines the max amount of error messages
 #define MAX_ASCII 128                       // defines the max amount of ascii characters
 
 
