@@ -24,6 +24,7 @@ int m_nListIndex = 0;                   //  used as linkedlist index;
 int m_nTokVarFlag = 0;                  // use to flag if token is variable or constant
 int m_nVariableStackAdrx = 4;           // variables start of address of first AR
 int m_nAR_Level = 0;                    // Activation Record first Level = 0;
+struct NODE *gListHead = NULL;          // global list head in case of error printing, free malloc from this pointer
 
 
 //--------------------local data structures ---------------
@@ -81,7 +82,7 @@ int main(int argc, char *argv[]) {
     printf("%d tokens \n", m_n_inputTokens);
     
     NODE *temp = NULL;
-    temp = ListHead;
+    temp = gListHead; // using global linkedlist pointer to head of list
     for (i =0; i < m_n_inputTokens; i++) {
         //printf("token %s\n", temp->token);
         temp =  temp->next != NULL ? temp->next : temp;
@@ -96,7 +97,8 @@ int main(int argc, char *argv[]) {
     
     // clean up after using the read tokens, you need to free the calloc spaced
     // when you are done with it
-    if(ListHead != NULL) { FreeMemoryAllocFront_to_Tail(ListHead); ListHead = NULL;}
+    if(gListHead != NULL) { FreeMemoryAllocFront_to_Tail(gListHead); gListHead = NULL;}
+    //if(ListHead != NULL) { FreeMemoryAllocFront_to_Tail(ListHead); ListHead = NULL;}
     
     // close the input file
     fclose(ifp);
@@ -143,6 +145,7 @@ NODE *InsertAtTail(NODE *head, char str[]){
     // check if head is null, if true, create new linked list
     if (head == NULL) {
         head = NewNode(str);
+        gListHead = head;
         // check if creating a new list failed
         if (head == NULL) {
             printf("Failed to create a new 1 element LinkList head");
@@ -263,46 +266,46 @@ void process_Block(NODE *head){
     NODE *nextTokenNode = NULL;
     nextTokenNode = head;
     
-    if ( nextTokenNode != NULL) {
-        // is current token a valid token?
-        if (m_nCurrentToken != INVALID_INT ) {
-            
-            switch (m_nCurrentToken) {
-                    
-                case INVALID_INT:
-                    // error reading the current token from getNextTokenNode
-                    printError(err35, " ");
-                    break;
-                    
-                case varsym:
-                    // token is of kind variable = 29
-                    //printf("I am here at lexvar\n");
-                    
-                    nextTokenNode = var_decl(nextTokenNode);
-                    break;
-                    
-                case procsym:
-                    // token is of kind Procedure = 30
-                    nextTokenNode = proc_decl(nextTokenNode);
-                    break;
-                    
-                case constsym:
-                    //--------------NEED TO ADD ENTER METHOD ------------------
-                    // token is of kind constant constsym = 28
-                    // if token = "const" then CONST-DECL();
-                    nextTokenNode = const_decl(nextTokenNode);
-                    break;
-                    
-                default:
-                    break;
-            }
-            
-            process_statement(nextTokenNode);
-            
+    // is current token a valid token?
+    if (m_nCurrentToken != INVALID_INT || nextTokenNode != NULL) {
+        
+        
+        
+        if (m_nCurrentToken == constsym){
+            //--------------NEED TO ADD ENTER METHOD ------------------
+            // token is of kind constant constsym = 28
+            // if token = "const" then CONST-DECL();
+            printf("\nCalling constant declaration\n");
+            nextTokenNode = const_decl(nextTokenNode);
+            printf("\nreturning from constant declaration\n");
         }
         
+        if (m_nCurrentToken == varsym){
+            // token is of kind variable = 29
+            printf("\nCalling  variable declaration\n");
+            nextTokenNode = var_decl(nextTokenNode);
+            printf("\nreturning from variable declaration\n");
+        }
+        
+        if (m_nCurrentToken == procsym){
+            // token is of kind Procedure = 30
+            printf("\nCalling  procedure declaration\n");
+            nextTokenNode = proc_decl(nextTokenNode);
+            printf("\nreturning from procedure declaration\n");
+        }
+        
+        
+        printf("\nCalling statement\n\n");
+        process_statement(nextTokenNode);
+        printf("\nreturning from statement\n");
+        return;
+        
     }
+    
+    // error reading the current token from getNextTokenNode
+    printError(err35, " ");
     return;
+    
     
 }
 
@@ -317,12 +320,14 @@ NODE *const_decl(NODE *head){
     nextTokenNode = head;
     
     if ( nextTokenNode != NULL){
+        // token = 28 (constant)
+        nConstant = m_nCurrentToken;
         
         do {
             // " 28 2 m 9 3 7 " is translated as "const m = 7 "
             
-            // token = 28 (constant) could have other values
-            nConstant = m_nCurrentToken;
+            // token = 28 (constant)
+            //nConstant = m_nCurrentToken;
             
             // update the current token value and get the node pointer to next token
             nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -330,15 +335,14 @@ NODE *const_decl(NODE *head){
             if (m_nCurrentToken != identsym) {
                 printError(err36, " ");
             }
+            
             // token = m
             // store the variable name, and go to next token after string variable
             strncpy(cIdent, nextTokenNode->token, MAX_STR + 1);
+            // just call nexttokennode and skip the variable string return integer (garbage)
+            // token has garbage
+            nextTokenNode = getNextTokenNode(nextTokenNode); // skip
             
-            if (m_nListIndex + 1 < m_n_inputTokens) {
-                
-                nextTokenNode = nextTokenNode->next;
-                m_nListIndex++;
-            }
             
             // token 9 or =
             nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -352,12 +356,11 @@ NODE *const_decl(NODE *head){
                 printError(err2, " ");
             }
             // token = 7 (the number that follows 3)
-            nNumber = atoi(nextTokenNode->token);
             //printf("token %s\n", nextTokenNode->token);
-            if (m_nListIndex + 1 < m_n_inputTokens) {
-                
-                nextTokenNode = nextTokenNode->next;
-            }
+            
+            nextTokenNode = getNextTokenNode(nextTokenNode);
+            nNumber = m_nCurrentToken;
+            
             
             printf("%d, %s, %d\n", nConstant, cIdent, nNumber);
             // TO-DO. Create method ENTER or some other method that processes the Values
@@ -406,20 +409,19 @@ NODE *var_decl(NODE *head){
             
             // store the variable name, and go to next token after string variable
             strncpy(cIdent, nextTokenNode->token, MAX_STR + 1);
-            if (m_nListIndex + 1 < m_n_inputTokens) {
-                // this will skip the string variable name and go to next token
-                // a coma or semicolon
-                nextTokenNode = nextTokenNode->next;
-                m_nListIndex++;
-            }
+            // just call nexttokennode and skip the variable string return integer (garbage)
+            // token has garbage
+            
+            nextTokenNode = getNextTokenNode(nextTokenNode); // skip
+            
             
             // is m_nCurrentToken a comma or different
             nextTokenNode = getNextTokenNode(nextTokenNode);
             
-            
-            printf("%d, %s, %d\n", m_nVariableStackAdrx++, cIdent, m_nAR_Level);
             // TO-DO. Create method ENTER or some other method that processes the Values
-            //ENTER(m_nVariableStackAdrx++, cIdent, m_nAR_Level);
+            //ENTER(m_nVariableStackAdrx, cIdent, m_nAR_Level);
+            printf("%d, %s, %d\n", m_nVariableStackAdrx, cIdent, m_nAR_Level);
+            m_nVariableStackAdrx++;
             
         } while (m_nCurrentToken == commasym );
         
@@ -453,12 +455,10 @@ NODE *proc_decl(NODE *head){
             
             // store the procedure name, and go to next token
             strncpy(cProcedure, nextTokenNode->token, MAX_STR + 1);
-            if (m_nListIndex + 1 < m_n_inputTokens) {
-                // this will skip the string procedure name and go to next token
-                // posibly a semicolon
-                nextTokenNode = nextTokenNode->next;
-                m_nListIndex++;
-            }
+            // just call nexttokennode and skip the variable string return integer (garbage)
+            // token has garbage
+            nextTokenNode = getNextTokenNode(nextTokenNode); // skip
+            
             
             printf("%d, %s\n", procsym, cProcedure);
             //ENTER(procedure, ident);
@@ -471,6 +471,8 @@ NODE *proc_decl(NODE *head){
             // get next token, increase the L level, call block procedure again
             nextTokenNode = getNextTokenNode(nextTokenNode);
             m_nAR_Level++;
+            m_nVariableStackAdrx += 3; // increase the variables starting address
+            // ** when increasing the AR level, you must also increase the stack space
             process_Block(nextTokenNode);
             
             
@@ -480,6 +482,8 @@ NODE *proc_decl(NODE *head){
             
             nextTokenNode = getNextTokenNode(nextTokenNode);
         }
+        // return normally from procedure
+        return nextTokenNode;
         
     }
     // have to do error number for this
@@ -488,6 +492,9 @@ NODE *proc_decl(NODE *head){
 }
 
 void process_statement(NODE *head){
+    
+    char cIdent[MAX_STR + 1] = " ";
+    char cProcedureCall[MAX_STR + 1] = " ";
     
     NODE *nextTokenNode = NULL;
     nextTokenNode = head;
@@ -503,18 +510,57 @@ void process_statement(NODE *head){
                 
             case identsym:
                 // token is of kind identsym
-                //printf("I am here at lexvar\n");
+                // store the variable name, and go to next token after string variable
+                
+                // need to handle variable address lookup here most likely
+                strncpy(cIdent, nextTokenNode->token, MAX_STR + 1);
+                // just call nexttokennode and skip the variable string return integer (garbage)
+                // token has garbage
+                nextTokenNode = getNextTokenNode(nextTokenNode); // skip
+                
+                
+                nextTokenNode = getNextTokenNode(nextTokenNode);
+                if (m_nCurrentToken != becomessym) {
+                    printError(err41, " ");
+                }
+                
+                nextTokenNode = getNextTokenNode(nextTokenNode);
+                
+                // EXPRESSION METHOD();
                 
                 break;
                 
             case callsym:
                 // token is of kind callsym
+                nextTokenNode = getNextTokenNode(nextTokenNode);
+                if (m_nCurrentToken != identsym) {
+                    printError(err36, " ");
+                }
+                // store the procedure name, and go to next token
+                // does it have to call the procedure address? or just tokenize the lexemelist
+                strncpy(cProcedureCall, nextTokenNode->token, MAX_STR + 1);
+                // just call nexttokennode and skip the variable string return integer (garbage)
+                // token has garbage
+                nextTokenNode = getNextTokenNode(nextTokenNode); // skip
+                
+                nextTokenNode = getNextTokenNode(nextTokenNode);
                 
                 break;
                 
             case beginsym:
-                
                 // token is of kind constant beginsym
+                nextTokenNode = getNextTokenNode(nextTokenNode);
+                process_statement(nextTokenNode);
+                
+                while (m_nCurrentToken = semicolonsym) {
+                    nextTokenNode = getNextTokenNode(nextTokenNode);
+                    process_statement(nextTokenNode);
+                }
+                if (m_nCurrentToken != endsym) {
+                    printError(err42, " ");
+                }
+                
+                nextTokenNode = getNextTokenNode(nextTokenNode);
                 break;
                 
             case ifsym:
@@ -558,12 +604,15 @@ void printError(int ErrorNumber, char *strToken){
     // print the error message given an error number from g_caErrorMsgs[] char* array
     if (ErrorNumber <= MAX_ERROR) {
         // to find error string, substract offset of 1
-        printf("Error # %d, %s\n", ErrorNumber, g_caErrorMsgs[ErrorNumber - 1]);
+        printf("Error %d, %s\n", ErrorNumber, g_caErrorMsgs[ErrorNumber - 1]);
         return;
     }
     // if error number is not in array, still print there is an error, but number
     // not recognized
     printf("Error, ErrorNumber %d not recognized\n", ErrorNumber);
+    // clean up after using the read tokens, you need to free the calloc spaced
+    // when you are done with it
+    if(gListHead != NULL) { FreeMemoryAllocFront_to_Tail(gListHead); gListHead = NULL;}
     return;
     
 }
