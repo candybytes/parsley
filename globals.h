@@ -45,7 +45,7 @@ int m_nCleanInputTokens = 0;                // global variable to track count of
 #define MAX_WORDS 15                        // define the number of reserved words
 #define INVALID_INT 2147483647              // define the long_max int value in case number string is invalid
 #define MAX_VAR_LEN 11                      // defines the masx length of a normal variable
-#define MAX_ERROR 40                        // defines the max amount of error messages
+#define MAX_ERROR 42                        // defines the max amount of error messages
 #define MAX_ASCII 128                       // defines the max amount of ascii characters
 
 
@@ -140,7 +140,7 @@ typedef enum {
     err19, err20, err21, err22, err23, err24,
     err25, err26, err27, err28, err29, err30,
     err31, err32, err33, err34, err35, err36,
-    err37, err38, err39, err40
+    err37, err38, err39, err40, err41, err42
     
 } g_eErrorMsgs;
 
@@ -187,6 +187,8 @@ char *g_caErrorMsgs[] = {
     "missing procedure declaration ;"//38
     "procedure declaration must end with ;"//39
     "no ; at the end of block"//40
+    ":= missing in statement" //41
+    "begin must end with end" // 42
     
     
     
