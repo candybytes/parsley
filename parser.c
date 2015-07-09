@@ -48,7 +48,7 @@ void process_statement(NODE *head);
 
 
 void FreeMemoryAllocFront_to_Tail(NODE *head);
-void analyzeLexemeList(NODE *head);
+void procedure_PROGRAM(NODE *head);
 
 
 // -----------------Initial call to program  -----------------
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
     
     // call to analyse tokens -- parser
     temp = ListHead;
-    analyzeLexemeList(temp);
+    procedure_PROGRAM(temp);
     
     
     // clean up after using the read tokens, you need to free the calloc spaced
@@ -211,10 +211,10 @@ void FreeMemoryAllocFront_to_Tail(NODE *head){
 
 // ------------------start of analyze tokens ---------------------------
 /*
- * void analyzeLexemeList(NODE *head)
+ * void procedure_PROGRAM(NODE *head)
  * start of the top-down token analyser from lexemelist
  */
-void analyzeLexemeList(NODE *head){
+void procedure_PROGRAM(NODE *head){
     // lexemelist has been read already and is stored in a linkedList
     
     NODE *nextTokenNode = NULL;
