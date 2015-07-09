@@ -493,6 +493,8 @@ NODE *proc_decl(NODE *head){
 
 void process_statement(NODE *head){
     
+    printf("\nEntered statement, token is %d\n", m_nCurrentToken);
+    
     char cIdent[MAX_STR + 1] = " ";
     char cProcedureCall[MAX_STR + 1] = " ";
     
@@ -548,11 +550,11 @@ void process_statement(NODE *head){
                 break;
                 
             case beginsym:
-                // token is of kind constant beginsym
+                // token is of kind  beginsym
                 nextTokenNode = getNextTokenNode(nextTokenNode);
                 process_statement(nextTokenNode);
                 
-                while (m_nCurrentToken = semicolonsym) {
+                while (m_nCurrentToken == semicolonsym) {
                     nextTokenNode = getNextTokenNode(nextTokenNode);
                     process_statement(nextTokenNode);
                 }
