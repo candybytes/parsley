@@ -714,14 +714,18 @@ NODE *process_FACTOR(NODE *head){
                 
             case identsym:
                 
-                nextTokenNode = getNextTokenNode(nextTokenNode);
+                nextTokenNode = getNextTokenNode(nextTokenNode); // skip
                 // do i need to handle reading the variable at the return
+                // get the variable name, need to do something with the variable name
+                nextTokenNode = getNextTokenNode(nextTokenNode);
                 break;
                 
             case numbersym:
                 
-                nextTokenNode = getNextTokenNode(nextTokenNode);
+                nextTokenNode = getNextTokenNode(nextTokenNode); // skip
                 // do i need to handle reading the number at the return
+                // get the number, need to do something with the number
+                nextTokenNode = getNextTokenNode(nextTokenNode);
                 break;
             case lparentsym:
                 // gettoken
