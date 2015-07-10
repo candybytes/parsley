@@ -39,16 +39,21 @@ typedef struct NODE{
 int sumEveryOtherNode(NODE *head);
 NODE *NewNode(char str[]);
 NODE *InsertAtTail(NODE *head, char str[]);
+void procedure_PROGRAM(NODE *head);
 NODE *getNextTokenNode(NODE *head);
 void process_Block(NODE *head);
 NODE *const_decl(NODE *head);
 NODE *var_decl(NODE *head);
 NODE *proc_decl(NODE *head);
 void process_statement(NODE *head);
+NODE *process_EXPRESSION(NODE *head);
+NODE *process_TERM(NODE *head);
+NODE *process_FACTOR(NODE *head);
+
 
 
 void FreeMemoryAllocFront_to_Tail(NODE *head);
-void procedure_PROGRAM(NODE *head);
+
 
 
 // -----------------Initial call to program  -----------------
@@ -587,6 +592,86 @@ void process_statement(NODE *head){
     return;
     
 }
+
+NODE *process_EXPRESSION(NODE *head){
+    
+    NODE *nextTokenNode = NULL;
+    nextTokenNode = head;
+    
+    if ( nextTokenNode != NULL){
+        
+        if ( (m_nCurrentToken == plussym) || (m_nCurrentToken == minussym) ) {
+            nextTokenNode = getNextTokenNode(nextTokenNode);
+            
+        }
+        //nextTokenNode = TERM
+        
+        while ( (m_nCurrentToken == plussym) || (m_nCurrentToken == minussym) ) {
+            nextTokenNode = getNextTokenNode(nextTokenNode);
+            //nextTokenNode = TERM
+        }
+        
+        return nextTokenNode;
+    }
+    
+    // need to do error number here for failed to read lexemelist token
+    printError(err35, " ");
+    // always must return something
+    return nextTokenNode;
+}
+
+NODE *process_TERM(NODE *head){
+    
+    NODE *nextTokenNode = NULL;
+    nextTokenNode = head;
+    
+    if ( nextTokenNode != NULL){
+        
+        //nextTokenNode = FACTOR();
+        while ( (m_nCurrentToken == multsym) || (m_nCurrentToken == slashsym) ) {
+            nextTokenNode = getNextTokenNode(nextTokenNode);
+            //nextTokenNode = FACTOR();
+        }
+        
+        return nextTokenNode;
+        
+    }
+    
+    // need to do error number here for failed to read lexemelist token
+    printError(err35, " ");
+    // always must return something
+    return nextTokenNode;
+}
+
+NODE *process_FACTOR(NODE *head){
+    
+    NODE *nextTokenNode = NULL;
+    nextTokenNode = head;
+    
+    if ( nextTokenNode != NULL){
+        
+        switch (m_nCurrentToken) {
+                
+            case INVALID_INT:
+                // error reading the current token from getNextTokenNode
+                printError(err35, " ");
+                break;
+                
+            case identsym:
+                
+        }
+        
+        return nextTokenNode;
+        
+    }
+    
+    // need to do error number here for failed to read lexemelist token
+    printError(err35, " ");
+    // always must return something
+    return nextTokenNode;
+    
+}
+
 
 
 // ------------------end of analyze tokens ---------------------------
