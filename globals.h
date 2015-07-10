@@ -162,9 +162,9 @@ char *g_caErrorMsgs[MAX_ERROR] = {
     "Assignment operator expected.",//13
     "call must be followed by an identifier.",//14
     "Call of a constant or variable is meaningless.",//15
-    "then expected.",//  16
+    "if condition must be followed by then",//  16
     "Semicolon or } expected.",//17
-    "do expected.",//18
+    "while condition must be followed by do",//18
     "Incorrect symbol following statement.",//19
     "Relational operator expected.",//20
     "Expression must not contain a procedure identifier.",//21
@@ -189,7 +189,8 @@ char *g_caErrorMsgs[MAX_ERROR] = {
     "no ; at the end of block"//40
     ":= missing in statement" //41
     "begin must end with end" // 42
-    
+    "left parenthesis ( has not been closed" // 43
+    "identifier, or number expected" // 44
     
     
 };
