@@ -45,7 +45,7 @@ void process_Block(NODE *head);
 NODE *const_decl(NODE *head);
 NODE *var_decl(NODE *head);
 NODE *proc_decl(NODE *head);
-void process_statement(NODE *head);
+NODE *process_statement(NODE *head);
 NODE *process_EXPRESSION(NODE *head);
 NODE *process_TERM(NODE *head);
 NODE *process_FACTOR(NODE *head);
@@ -301,7 +301,7 @@ void process_Block(NODE *head){
         
         
         printf("\nCalling statement\n\n");
-        process_statement(nextTokenNode);
+        nextTokenNode = process_statement(nextTokenNode);
         printf("\nreturning from statement\n");
         return;
         
@@ -496,7 +496,7 @@ NODE *proc_decl(NODE *head){
     
 }
 
-void process_statement(NODE *head){
+NODE *process_statement(NODE *head){
     
     printf("\nEntered statement, token is %d\n", m_nCurrentToken);
     
@@ -515,31 +515,36 @@ void process_statement(NODE *head){
                 printError(err35, " ");
                 break;
                 
-            case identsym:
                 // token is of kind identsym
-                // store the variable name, and go to next token after string variable
+            case identsym:
                 
+                // store the variable name, and go to next token after string variable
                 // need to handle variable address lookup here most likely
                 strncpy(cIdent, nextTokenNode->token, MAX_STR + 1);
+                
                 // just call nexttokennode and skip the variable string return integer (garbage)
                 // token has garbage
                 nextTokenNode = getNextTokenNode(nextTokenNode); // skip
                 
-                
+                // gettoken
                 nextTokenNode = getNextTokenNode(nextTokenNode);
+                // if token <> " := "   error
                 if (m_nCurrentToken != becomessym) {
                     printError(err41, " ");
                 }
-                
+                // gettoken
                 nextTokenNode = getNextTokenNode(nextTokenNode);
-                
-                // EXPRESSION METHOD();
+                // expression
+                nextTokenNode = process_EXPRESSION(nextTokenNode);
                 
                 break;
                 
             case callsym:
                 // token is of kind callsym
+                
+                // get token
                 nextTokenNode = getNextTokenNode(nextTokenNode);
+                // if token <> " identsym " error
                 if (m_nCurrentToken != identsym) {
                     printError(err36, " ");
                 }
@@ -550,28 +555,42 @@ void process_statement(NODE *head){
                 // token has garbage
                 nextTokenNode = getNextTokenNode(nextTokenNode); // skip
                 
+                // gettoken
                 nextTokenNode = getNextTokenNode(nextTokenNode);
                 
                 break;
                 
             case beginsym:
                 // token is of kind  beginsym
+                
+                // gettoken
                 nextTokenNode = getNextTokenNode(nextTokenNode);
-                process_statement(nextTokenNode);
+                
+                // statement
+                nextTokenNode = process_statement(nextTokenNode);
                 
                 while (m_nCurrentToken == semicolonsym) {
+                    // gettoken
                     nextTokenNode = getNextTokenNode(nextTokenNode);
-                    process_statement(nextTokenNode);
+                    // statement
+                    nextTokenNode = process_statement(nextTokenNode);
                 }
+                // if token <> "end" error
                 if (m_nCurrentToken != endsym) {
                     printError(err42, " ");
                 }
-                
+                // gettoken
                 nextTokenNode = getNextTokenNode(nextTokenNode);
                 break;
                 
             case ifsym:
                 // token is of kind ifsym
+                
+                // gettoken
+                nextTokenNode = getNextTokenNode(nextTokenNode);
+                
+                // condition
+                //nextTokenNode = process_condition(nextTokenNode);
                 
                 break;
                 
@@ -584,6 +603,7 @@ void process_statement(NODE *head){
                 break;
         }
         
+        return nextTokenNode;
         
     }
     // statement can not be processed, token node was null
@@ -601,14 +621,18 @@ NODE *process_EXPRESSION(NODE *head){
     if ( nextTokenNode != NULL){
         
         if ( (m_nCurrentToken == plussym) || (m_nCurrentToken == minussym) ) {
+            
             nextTokenNode = getNextTokenNode(nextTokenNode);
             
         }
-        //nextTokenNode = TERM
+        
+        nextTokenNode = process_TERM(nextTokenNode);
         
         while ( (m_nCurrentToken == plussym) || (m_nCurrentToken == minussym) ) {
+            
             nextTokenNode = getNextTokenNode(nextTokenNode);
-            //nextTokenNode = TERM
+            
+            nextTokenNode = process_TERM(nextTokenNode);
         }
         
         return nextTokenNode;
@@ -626,13 +650,16 @@ NODE *process_TERM(NODE *head){
     nextTokenNode = head;
     
     if ( nextTokenNode != NULL){
+        // factor
+        nextTokenNode = process_FACTOR(nextTokenNode);
         
-        //nextTokenNode = FACTOR();
         while ( (m_nCurrentToken == multsym) || (m_nCurrentToken == slashsym) ) {
+            // get token
             nextTokenNode = getNextTokenNode(nextTokenNode);
-            //nextTokenNode = FACTOR();
+            // factor
+            nextTokenNode = process_FACTOR(nextTokenNode);
         }
-        
+        // return
         return nextTokenNode;
         
     }
@@ -653,11 +680,35 @@ NODE *process_FACTOR(NODE *head){
         switch (m_nCurrentToken) {
                 
             case INVALID_INT:
+                
                 // error reading the current token from getNextTokenNode
                 printError(err35, " ");
                 break;
                 
             case identsym:
+                
+                nextTokenNode = getNextTokenNode(nextTokenNode);
+                // do i need to handle reading the variable at the return
+                break;
+                
+            case numbersym:
+                
+                nextTokenNode = getNextTokenNode(nextTokenNode);
+                // do i need to handle reading the number at the return
+                break;
+            case lparentsym:
+                
+                nextTokenNode = getNextTokenNode(nextTokenNode);
+                process_EXPRESSION(nextTokenNode);
+                if (m_nCurrentToken != rparentsym) {
+                    printError(err43, " ");
+                }
+                nextTokenNode = getNextTokenNode(nextTokenNode);
+                break;
+                
+            default:
+                printError(err44, " ");
+                break;
                 
         }
         
