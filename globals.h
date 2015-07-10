@@ -140,7 +140,8 @@ typedef enum {
     err19, err20, err21, err22, err23, err24,
     err25, err26, err27, err28, err29, err30,
     err31, err32, err33, err34, err35, err36,
-    err37, err38, err39, err40, err41, err42
+    err37, err38, err39, err40, err41, err42,
+    err43, err44
     
 } g_eErrorMsgs;
 
