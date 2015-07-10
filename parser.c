@@ -232,8 +232,13 @@ void procedure_PROGRAM(NODE *head){
 
         // process code block
 <<<<<<< HEAD
+<<<<<<< HEAD
         nextTokenNode = process_Block(nextTokenNode);
         
+=======
+        process_Block(nextTokenNode);
+
+>>>>>>> origin/master
 =======
         process_Block(nextTokenNode);
 
@@ -273,8 +278,13 @@ NODE *getNextTokenNode(NODE *head){
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 NODE *process_Block(NODE *head){
     
+=======
+void process_Block(NODE *head){
+
+>>>>>>> origin/master
 =======
 void process_Block(NODE *head){
 
@@ -491,9 +501,15 @@ NODE *proc_decl(NODE *head){
             m_nVariableStackAdrx += 3; // increase the variables starting address
             // ** when increasing the AR level, you must also increase the stack space
 <<<<<<< HEAD
+<<<<<<< HEAD
             nextTokenNode = process_Block(nextTokenNode);
             
             
+=======
+            process_Block(nextTokenNode);
+
+
+>>>>>>> origin/master
 =======
             process_Block(nextTokenNode);
 
