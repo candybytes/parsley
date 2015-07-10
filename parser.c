@@ -45,10 +45,11 @@ void process_Block(NODE *head);
 NODE *const_decl(NODE *head);
 NODE *var_decl(NODE *head);
 NODE *proc_decl(NODE *head);
-NODE *process_statement(NODE *head);
+NODE *process_STATEMENT(NODE *head);
 NODE *process_EXPRESSION(NODE *head);
 NODE *process_TERM(NODE *head);
 NODE *process_FACTOR(NODE *head);
+NODE *process_CONDITION(NODE *head);
 
 
 
@@ -301,7 +302,7 @@ void process_Block(NODE *head){
         
         
         printf("\nCalling statement\n\n");
-        nextTokenNode = process_statement(nextTokenNode);
+        nextTokenNode = process_STATEMENT(nextTokenNode);
         printf("\nreturning from statement\n");
         return;
         
@@ -496,7 +497,7 @@ NODE *proc_decl(NODE *head){
     
 }
 
-NODE *process_statement(NODE *head){
+NODE *process_STATEMENT(NODE *head){
     
     printf("\nEntered statement, token is %d\n", m_nCurrentToken);
     
@@ -567,13 +568,13 @@ NODE *process_statement(NODE *head){
                 nextTokenNode = getNextTokenNode(nextTokenNode);
                 
                 // statement
-                nextTokenNode = process_statement(nextTokenNode);
+                nextTokenNode = process_STATEMENT(nextTokenNode);
                 
                 while (m_nCurrentToken == semicolonsym) {
                     // gettoken
                     nextTokenNode = getNextTokenNode(nextTokenNode);
                     // statement
-                    nextTokenNode = process_statement(nextTokenNode);
+                    nextTokenNode = process_STATEMENT(nextTokenNode);
                 }
                 // if token <> "end" error
                 if (m_nCurrentToken != endsym) {
@@ -590,26 +591,52 @@ NODE *process_statement(NODE *head){
                 nextTokenNode = getNextTokenNode(nextTokenNode);
                 
                 // condition
-                //nextTokenNode = process_condition(nextTokenNode);
+                nextTokenNode = process_CONDITION(nextTokenNode);
+                
+                // if token <> "then" error
+                if (m_nCurrentToken != thensym) {
+                    printError(err16, " ");
+                }
+                // gettoken
+                nextTokenNode = getNextTokenNode(nextTokenNode);
+                //statement
+                nextTokenNode = process_STATEMENT(nextTokenNode);
                 
                 break;
                 
             case whilesym:
                 // token is of kind whilesym
+                
+                // gettoken
+                nextTokenNode = getNextTokenNode(nextTokenNode);
+                //condition
+                nextTokenNode = process_CONDITION(nextTokenNode);
+                // if token <> "dosym" error
+                if (m_nCurrentToken != dosym) {
+                    printError(err18, " ");
+                }
+                // gettoken
+                nextTokenNode = getNextTokenNode(nextTokenNode);
+                //statement
+                nextTokenNode = process_STATEMENT(nextTokenNode);
+                
                 break;
                 
             default:
-                // HAVE TO DO AN ERROR HERE
+                // failed to read lexeme list
+                printError(err35, " ");
                 break;
         }
         
         return nextTokenNode;
         
     }
-    // statement can not be processed, token node was null
-    //printError(err40, " "); // need to create error for this
     
-    return;
+    // need to do error number here for failed to read lexemelist token
+    printError(err35, " ");
+    // always must return something, at this point nextTokenNode is NULL
+    
+    return nextTokenNode;
     
 }
 
@@ -697,9 +724,10 @@ NODE *process_FACTOR(NODE *head){
                 // do i need to handle reading the number at the return
                 break;
             case lparentsym:
-                
+                // gettoken
                 nextTokenNode = getNextTokenNode(nextTokenNode);
-                process_EXPRESSION(nextTokenNode);
+                // expression
+                nextTokenNode = process_EXPRESSION(nextTokenNode);
                 if (m_nCurrentToken != rparentsym) {
                     printError(err43, " ");
                 }
@@ -721,6 +749,42 @@ NODE *process_FACTOR(NODE *head){
     // always must return something
     return nextTokenNode;
     
+}
+
+NODE *process_CONDITION(NODE *head){
+    
+    NODE *nextTokenNode = NULL;
+    nextTokenNode = head;
+    
+    if ( nextTokenNode != NULL){
+        
+        if (m_nCurrentToken == oddsym) {
+            // gettoken
+            nextTokenNode = getNextTokenNode(nextTokenNode);
+            // expression
+            nextTokenNode = process_EXPRESSION(nextTokenNode);
+        } else {
+            // expression
+            nextTokenNode = process_EXPRESSION(nextTokenNode);
+            // if token <> relation, error
+            if ( (m_nCurrentToken < eqlsym) || (m_nCurrentToken > geqsym) ){
+                printError(err20, " ");
+            }
+            
+            // gettoken
+            nextTokenNode = getNextTokenNode(nextTokenNode);
+            // expression
+            nextTokenNode = process_EXPRESSION(nextTokenNode);
+        }
+        
+        return nextTokenNode;
+        
+    }
+    
+    // need to do error number here for failed to read lexemelist token
+    printError(err35, " ");
+    // always must return something
+    return nextTokenNode;
 }
 
 
