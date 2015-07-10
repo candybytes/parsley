@@ -383,7 +383,8 @@ NODE *const_decl(NODE *head){
         
         return ( nextTokenNode = getNextTokenNode(nextTokenNode) );
     }
-    // have to do error number for this
+    // error reading the current token from getNextTokenNode
+    printError(err35, " ");
     return NULL;
     
 }
@@ -439,7 +440,8 @@ NODE *var_decl(NODE *head){
         return ( nextTokenNode = getNextTokenNode(nextTokenNode) );
         
     }
-    // have to do error number for this
+    // error reading the current token from getNextTokenNode
+    printError(err35, " ");
     return NULL;
 }
 
@@ -492,7 +494,8 @@ NODE *proc_decl(NODE *head){
         return nextTokenNode;
         
     }
-    // have to do error number for this
+    // error reading the current token from getNextTokenNode
+    printError(err35, " ");
     return NULL;
     
 }
