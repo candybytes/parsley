@@ -36,6 +36,7 @@ string m_caProcedures[MAX_VARS_CONST_PROC];
 int m_nVarCount = 0;
 int m_nConstCount = 0;
 int m_nProcCount = 0;
+int strsAreEqual(char * stt1, char *str2);
 
 
 //--------------------local data structures ---------------
@@ -378,22 +379,30 @@ int existVar(char varName[]){
     
     for (i = 0; i < m_nVarCount; i++) {
         
-        if ( strcmp(m_nVarCount[i], varName) == 0 ) {
+        //printf("%s\n", m_caVariables[i] );
+        
+        
+        if ( strsAreEqual(m_caVariables[i], varName) ) {
             return 1;
         }
+        
     }
     
     return 0;
 }
+
 int existConst(char constName[]){
     
     int i = 0;
     
     for (i = 0; i < m_nConstCount; i++) {
         
-        if ( strcmp(m_nConstCount[i], constName) == 0 ) {
+        printf("%s\n", m_caConstants[i] );
+        
+        if ( strsAreEqual(m_caConstants[i], constName) ) {
             return 1;
         }
+        
     }
     
     return 0;
@@ -405,12 +414,21 @@ int existProc(char procName[]){
     
     for (i = 0; i < m_nProcCount; i++) {
         
-        if ( strcmp(m_nProcCount[i], procName) == 0 ) {
+        
+        
+        if ( strsAreEqual(m_caProcedures[i], procName)) {
             return 1;
         }
+        
     }
     
     return 0;
+}
+
+int strsAreEqual(char * stt1, char *str2){
+    
+    return strcmp(stt1, str2) == 0;
+    
 }
 
 NODE *const_decl(NODE *head){
@@ -586,7 +604,7 @@ NODE *proc_decl(NODE *head){
             nextTokenNode = getNextTokenNode(nextTokenNode); // skip
             
             
-            printf("%d, %s\n", procsym, cProcedure);
+            printf("%d, %s\n", procsym, m_caProcedures[m_nProcCount - 1]);
             //ENTER(procedure, ident);
             
             nextTokenNode = getNextTokenNode(nextTokenNode);
