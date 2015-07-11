@@ -45,7 +45,7 @@ int m_nCleanInputTokens = 0;                // global variable to track count of
 #define MAX_WORDS 15                        // define the number of reserved words
 #define INVALID_INT 2147483647              // define the long_max int value in case number string is invalid
 #define MAX_VAR_LEN 11                      // defines the masx length of a normal variable
-#define MAX_ERROR 45                        // defines the max amount of error messages
+#define MAX_ERROR 50                        // defines the max amount of error messages
 #define MAX_ASCII 128                       // defines the max amount of ascii characters
 #define MAX_VARS_CONST_PROC 100             // defines the max amount of each variables, constants and procedures individually, 100, 100, 100
 
@@ -84,12 +84,12 @@ typedef enum {lexConstant = 1, lexVar, lexProc} eLexemeKind;
 //structure of the symbol table record
 typedef struct {
     
-    int TokenType;      // token type
-    int kind;           // constant = 1; var = 2, proc = 3
-    char name[12];      // name up to 11 characters long, 11 + 1 for \0
-    int val;            // number (ASCII value)
-    int level;          // L level
-    int adr;            // M address
+    int TokenType;                  // token type
+    int kind;                       // constant = 1; var = 2, proc = 3
+    char name[MAX_VAR_LEN + 1];     // name up to 11 characters long, 11 + 1 for \0
+    int val;                        // number (ASCII value)
+    int level;                      // L level
+    int adr;                        // M address
     
 } namerecord_t;
 
@@ -142,7 +142,8 @@ typedef enum {
     err25, err26, err27, err28, err29, err30,
     err31, err32, err33, err34, err35, err36,
     err37, err38, err39, err40, err41, err42,
-    err43, err44
+    err43, err44, err45, err46, err47, err48,
+    err49, err50
     
 } g_eErrorMsgs;
 
@@ -182,17 +183,23 @@ char *g_caErrorMsgs[MAX_ERROR] = {
     "invalid identsym",//31
     "invalid pair of symbols",//32
     "failed to initialized Namerecord_table",//33
-    "failed to store lexeme in Namerecord_table"//34
-    "failed to read lexemelist "//35
-    "missing identifier"//36
-    "declaration must end with ;"//37
-    "missing procedure declaration ;"//38
-    "procedure declaration must end with ;"//39
-    "no ; at the end of block"//40
-    ":= missing in statement" //41
-    "begin must end with end" // 42
-    "left parenthesis ( has not been closed" // 43
-    "identifier, or number expected" // 44
+    "failed to store lexeme in Namerecord_table",//34
+    "failed to read lexemelist ",//35
+    "missing identifier",//36
+    "declaration must end with ;",//37
+    "missing procedure declaration ;",//38
+    "procedure declaration must end with ;",//39
+    "no ; at the end of block",//40
+    ":= missing in statement", //41
+    "begin must end with end", // 42
+    "left parenthesis ( has not been closed", // 43
+    "identifier, or number expected", // 44
+    "a variable or constant or procedure already exist under that constant name", // 45
+    "a variable or constant or procedure already exist under that variable name", // 46
+    "a variable or constant or procedure already exist under that procedure name", // 47
+    "Undeclared procedure.",//48
+    
+    
     
     
 };
