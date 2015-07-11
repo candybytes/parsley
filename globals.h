@@ -47,6 +47,7 @@ int m_nCleanInputTokens = 0;                // global variable to track count of
 #define MAX_VAR_LEN 11                      // defines the masx length of a normal variable
 #define MAX_ERROR 45                        // defines the max amount of error messages
 #define MAX_ASCII 128                       // defines the max amount of ascii characters
+#define MAX_VARS_CONST_PROC 100             // defines the max amount of each variables, constants and procedures individually, 100, 100, 100
 
 
 //global strings for input output file names
