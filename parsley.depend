@@ -1,0 +1,15 @@
+# depslib dependency file v1.0
+1435617728 source:c:\users\mbadmin\desktop\parsley\scanner3.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"globals.h"
+
+1436597000 c:\users\mbadmin\desktop\parsley\globals.h
+
+1436616650 source:c:\users\mbadmin\desktop\parsley\parser.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"globals.h"
+
