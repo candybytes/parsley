@@ -83,7 +83,8 @@ int main(int argc, char *argv[]) {
     FILE *ifp = NULL;
     ifp = fopen("lexemelist.txt", "r");
     if (ifp == NULL) {
-        printf("Need to add error number for file open here\n");
+        printError(err35, " ");
+        
     }
     
     // create a new ListHead
@@ -103,6 +104,8 @@ int main(int argc, char *argv[]) {
         
     }
     
+    // close the input file
+    fclose(ifp);
     // ----------test print ------------- //
     printf("%d tokens \n", m_n_inputTokens);
     
@@ -113,7 +116,7 @@ int main(int argc, char *argv[]) {
     NODE *temp = NULL;
     temp = gListHead; // using global linkedlist pointer to head of list
     for (i =0; i < m_n_inputTokens; i++) {
-        printf("token %s\n", temp->token);
+        //printf("token %s\n", temp->token);
         temp =  temp->next != NULL ? temp->next : temp;
         
     }
@@ -131,7 +134,7 @@ int main(int argc, char *argv[]) {
     //if(ListHead != NULL) { FreeMemoryAllocFront_to_Tail(ListHead); ListHead = NULL;}
     
     // close the input file
-    fclose(ifp);
+    //fclose(ifp);
     
     
     return 0;
@@ -140,7 +143,7 @@ int main(int argc, char *argv[]) {
 void printVAR_CONST_PROCS(){
     int i = 0;
     for (i = 0; i < 100; i++) {
-        printf("%d %s %s %s\n", i, m_caConstants[i], m_caVariables[i], m_caProcedures[i]);
+        //printf("%d %s %s %s\n", i, m_caConstants[i], m_caVariables[i], m_caProcedures[i]);
     }
 }
 
@@ -166,7 +169,8 @@ NODE *NewNode(char str[]){
         
     } else {
         // malloc failed, ptr is still null
-        printf("Failer to malloc space for node\n");
+        printError(err30, "172");
+        //printf("Failer to malloc space for node\n");
     }
     // return the pointer to the new created node, or NULL if it failed to malloc space
     return brandNewNode;
@@ -185,7 +189,8 @@ NODE *InsertAtTail(NODE *head, char str[]){
         gListHead = head;
         // check if creating a new list failed
         if (head == NULL) {
-            printf("Failed to create a new 1 element LinkList head");
+            printError(err30, "192");
+            //printf("Failed to create a new 1 element LinkList head");
         }
         // if the head was null, a new list was created, return pointer to new list
         return head;
@@ -196,7 +201,8 @@ NODE *InsertAtTail(NODE *head, char str[]){
     NODE *newTailNode = NULL;
     newTailNode = NewNode(str);
     if (newTailNode == NULL) {
-        printf("Failed to create a new node at the tail");
+        printError(err30, "192");
+        //printf("Failed to create a new node at the tail");
     }
     // check if you are at the tail before inserting
     NODE *current = head;
@@ -336,29 +342,29 @@ NODE *process_Block(NODE *head){
             //--------------NEED TO ADD ENTER METHOD ------------------
             // token is of kind constant constsym = 28
             // if token = "const" then CONST-DECL();
-            printf("\nCalling constant declaration\n");
+            //printf("\nCalling constant declaration\n");
             nextTokenNode = const_decl(nextTokenNode);
-            printf("\nreturning from constant declaration\n");
+            //printf("\nreturning from constant declaration\n");
         }
         
         if (m_nCurrentToken == varsym){
             // token is of kind variable = 29
-            printf("\nCalling  variable declaration\n");
+            //printf("\nCalling  variable declaration\n");
             nextTokenNode = var_decl(nextTokenNode);
-            printf("\nreturning from variable declaration\n");
+            //printf("\nreturning from variable declaration\n");
         }
         
         if (m_nCurrentToken == procsym){
             // token is of kind Procedure = 30
-            printf("\nCalling  procedure declaration\n");
+            //printf("\nCalling  procedure declaration\n");
             nextTokenNode = proc_decl(nextTokenNode);
-            printf("\nreturning from procedure declaration\n");
+            //printf("\nreturning from procedure declaration\n");
         }
         
         
-        printf("\nCalling statement\n\n");
+        //printf("\nCalling statement\n\n");
         nextTokenNode = process_STATEMENT(nextTokenNode);
-        printf("\nreturning from statement\n");
+        //printf("\nreturning from statement\n");
         return nextTokenNode;
         
     }
@@ -478,13 +484,13 @@ NODE *const_decl(NODE *head){
                 printError(err2, "478 ");
             }
             // token = 7 (the number that follows 3)
-            //printf("token %s\n", nextTokenNode->token);
+            
             
             nextTokenNode = getNextTokenNode(nextTokenNode);
             nNumber = m_nCurrentToken;
             
             
-            printf("%d, %s, %d\n", nConstant, m_caConstants[m_nConstCount-1], nNumber);
+            printf("constant 493::  %d, %s, %d\n", nConstant, m_caConstants[m_nConstCount-1], nNumber);
             // TO-DO. Create method ENTER or some other method that processes the Values
             //ENTER(constant, ident, number);
             
@@ -554,7 +560,7 @@ NODE *var_decl(NODE *head){
             
             // TO-DO. Create method ENTER or some other method that processes the Values
             //ENTER(m_nVariableStackAdrx, cIdent, m_nAR_Level);
-            printf("%d, %s, %d\n", m_nVariableStackAdrx, m_caVariables[m_nVarCount - 1], m_nAR_Level);
+            printf("variable 563 :: %d, %s, %d\n", m_nVariableStackAdrx, m_caVariables[m_nVarCount - 1], m_nAR_Level);
             m_nVariableStackAdrx++;
             
         } while (m_nCurrentToken == commasym );
@@ -602,7 +608,7 @@ NODE *proc_decl(NODE *head){
             
             nextTokenNode = getNextTokenNode(nextTokenNode); // skip
             
-            printf("%d, %s\n", procsym, m_caProcedures[m_nProcCount - 1]);
+            printf("procedure 611:: %d, %s\n", procsym, m_caProcedures[m_nProcCount - 1]);
             //ENTER(procedure, ident);
             
             nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -638,7 +644,7 @@ NODE *proc_decl(NODE *head){
 
 NODE *process_STATEMENT(NODE *head){
     
-    printf("\nEntered statement, token is %d\n", m_nCurrentToken);
+    //printf("\nEntered statement, token is %d\n", m_nCurrentToken);
     
     char cIdent[MAX_STR + 1] = " ";
     char cProcedureCall[MAX_STR + 1] = " ";
@@ -780,7 +786,7 @@ NODE *process_STATEMENT(NODE *head){
                 if (m_nCurrentToken == identsym) {
                     
                     // check if variable exist or not, if it does not exit, error11
-                    printf("token at line 783 %s\n", nextTokenNode->token );
+                    //printf("token at line 783 %s\n", nextTokenNode->token );
                     if ( existVar(nextTokenNode->token) ){
                         // create code for LOD, 0, var address M // code for variable
                         // create code for SIO 0 0
@@ -793,14 +799,37 @@ NODE *process_STATEMENT(NODE *head){
                     }
                     nextTokenNode = getNextTokenNode(nextTokenNode); // skip
                     nextTokenNode = getNextTokenNode(nextTokenNode); // after var or constant name
-                    printf("token at line 795 %s token is %d\n", nextTokenNode->token, m_nCurrentToken );
+                    //printf("token at line 795 %s token is %d\n", nextTokenNode->token, m_nCurrentToken );
                     // if token <> " ; semicolonsym " error
                     if (m_nCurrentToken != semicolonsym) {
                         printError(err5, "798 ");
                     }
                     
                     //nextTokenNode = getNextTokenNode(nextTokenNode);
+                    // create code (print top of stack OP, 0, 1)
                 }
+                break;
+                
+            case readsym:
+                
+                // create code (read_input OP, 0, 2)
+                nextTokenNode = getNextTokenNode(nextTokenNode);
+                
+                // check if variable exist or not, if it does not exit, error11
+                //printf("token at line 813 %s\n", nextTokenNode->token );
+                if ( existVar(nextTokenNode->token) ){
+                    // create code for store, 0, var address M // code for variable
+                    
+                } else if ( existConst(nextTokenNode->token) ) {
+                    // error, you can not store values into constants
+                    printError(err12, "819 ");
+                } else {
+                    // undeclared  variable
+                    printError(err11, "822 ");
+                }
+                
+                
+                
                 break;
                 
             case endsym:
@@ -902,7 +931,7 @@ NODE *process_FACTOR(NODE *head){
                 break;
                 
             case identsym:
-                printf("factor, identsym\n");
+                //printf("factor, identsym\n");
                 
                 // check if variable exist or not, if it does not exit, error11
                 
@@ -1003,7 +1032,7 @@ void printError(int ErrorNumber, char *strToken){
     if (ErrorNumber <= MAX_ERROR) {
         // to find error string, substract offset of 1
         printf("Error %d, %s\n", ErrorNumber, g_caErrorMsgs[ErrorNumber - 1]);
-        printf("%s\n", strToken);
+        //printf("%s\n", strToken);
         return;
     }
     // clean up after using the read tokens, you need to free the calloc spaced
