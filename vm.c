@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "globals.h"
+#include "driver.h"
 
 
 /** global constants and
@@ -29,6 +30,9 @@ int codeCount = 0;
 int codeLine = -1;
 int RUN = 1;
 int prevSP = 0;
+// added flag to output to console from driver 07-12-15
+int OTC = 0;
+
 // register variables
 // bp base pointer, sp stack pointer, pc program counter
 int bp = 1;
@@ -38,6 +42,8 @@ int pc = 0;
 // global strings for input output file names
 #define IFS "mcode.txt"
 #define OFS "stacktrace.txt"
+
+
 
 /** Read ahead function prototypes */
 void readInputFile(char fileName[]);
@@ -49,7 +55,10 @@ int base(int level, int b);
 void exeStackOP();
 void initGlobalArrays();
 void endOfProgram();
-
+// added july 12 to combine with driver
+void outStackAndRegistersToConsole();
+void outCodeLinesToConsole();
+int strsAreEqual(char * stt1, char *str2);
 
 /** global data structures */
 /*
@@ -82,15 +91,17 @@ typedef enum {ret, neg, add, sub, mul, div_, odd, mod, eql, neq, lss, leq, gtr, 
 int ARdiv[4 * MAX_LEXI_LEVELS];
 
 /*************** Initial call to program  ***********/
-int main(int argc, char *argv[]) {
+
+int  runVM(int argc, char *argv) {
     
     char *filename = NULL;
-    if(argc > 1) {
-        filename = argv[1];
+    
+    if(argc) {
+        OTC = strsAreEqual(&argv[0], "-v");
     }
-    else {
-        filename = IFS;
-    }
+
+
+    filename = IFS;
     // read the input from file
     readInputFile(filename);
     
@@ -101,6 +112,11 @@ int main(int argc, char *argv[]) {
     IR.M = 0;
     // print Code lines to file
     outCodeLinesToFile();
+    if (OTC) {
+    
+        printf("\nvirtual machine execution trace\n\n");
+        outCodeLinesToConsole();
+    }
 
     int x = 0; int y = 0;
     // declare a reg[bp][sp] array
@@ -117,6 +133,8 @@ int main(int argc, char *argv[]) {
     int i = 0;
     for (i = 0; i < codeCount; i++){
     	outStackAndRegistersToFile();
+        // if output to console instruction is true print stact trace to console
+        if ( OTC ) { outStackAndRegistersToConsole(); }
     	// store the values of the bp and sp to check for
     	// changes on the activation record 
     	if(codeLine >= 0){
@@ -138,7 +156,7 @@ int main(int argc, char *argv[]) {
     	}
     }
    	
-    endOfProgram();
+    //endOfProgram();
     return 0;
     
 }
@@ -415,6 +433,29 @@ void outCodeLinesToFile(){
 	fclose(fpt);
 	return;
 }
+
+/**
+ * "outCodeLinesToConsole()"
+ *  print the code lines to console
+ *
+ */
+void outCodeLinesToConsole(){
+    
+    int i = 0;
+    
+    // print head labels
+    printf("%-6s%-5s%-4s%-4s\n", LABELS[0],LABELS[1],LABELS[2],LABELS[3]);
+    // print to file the code lines from the code array
+    for( i = 0; i < codeCount;i++){
+        printf("%-6d%-5s%-4d%-4d\n", i, getOpCode(code[i].OP), code[i].L, code[i].M);
+    }
+    printf("\n");
+
+    return;
+}
+
+
+
 /** 
 * "*getOpCode(int OPcode)"
 * return a string value of the 
@@ -487,6 +528,58 @@ void outStackAndRegistersToFile(){
 
 }
 
+/**
+ * "outStackAndRegistersToConsole()"
+ *  prints the stack trace to console
+ */
+void outStackAndRegistersToConsole(){
+    
+
+    int stackPrint = 1;
+    int arplace = 0;
+    
+   	
+    if (codeLine < 0){
+        // print the first row of labels
+        printf("%-19s%-4s%-4s%-4s%s\n", "",
+                LABELS[4],LABELS[5],LABELS[6],LABELS[7]);
+        
+        // print the second row of labels and the values of the registers
+        // %-19s is the width of the first 4 columns combined
+        printf("%-19s%-4d%-4d%-4d\n",LABELS[8],pc,bp,sp);
+    } else {
+        // else the value of the nLine is at least line 0 or greater
+        // print the code lines
+        
+        printf("%-6d%-5s%-4d%-4d", codeLine, getOpCode(code[codeLine].OP), code[codeLine].L, code[codeLine].M);
+        // print the registers.
+        printf("%-4d%-4d%-4d", pc,bp,sp);
+        // print the stack.
+        while(stackPrint <= sp){
+            printf("%-4d", stack[stackPrint]);
+            // check if the AR record separation is current
+            // the AR place will never be 0
+            if(ARdiv[arplace] == stackPrint && (stackPrint + 1) < sp){
+                if(ARdiv[arplace] != 0){
+                    printf("%-4s", "|");
+                } 
+                arplace++;
+            }
+            
+            stackPrint++;
+        }
+        printf("\n");
+    }
+
+    
+}
+
+int strsAreEqual(char * stt1, char *str2){
+    
+    return strcmp(stt1, str2) == 0;
+    
+}
+
 /** 
 * "endOfProgram()"
 * it prints a end of program message to console
@@ -494,5 +587,5 @@ void outStackAndRegistersToFile(){
 *  
 */
 void endOfProgram(){
-	printf("%s has been successfully created with the output!\n", OFS);
+	printf("\n%s has been successfully created with the output!\n", OFS);
 }
