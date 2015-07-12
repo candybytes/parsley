@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
     NODE *temp = NULL;
     temp = gListHead; // using global linkedlist pointer to head of list
     for (i =0; i < m_n_inputTokens; i++) {
-        //printf("token %s\n", temp->token);
+        printf("token %s\n", temp->token);
         temp =  temp->next != NULL ? temp->next : temp;
 
     }
@@ -299,7 +299,7 @@ void procedure_PROGRAM(NODE *head){
     }
 
     // if LinkedList is null or empty, return and print error
-    printError(err35, " ");
+    printError(err35, " 299");
     return;
 
 
@@ -320,7 +320,7 @@ NODE *getNextTokenNode(NODE *head){
     }
 
     m_nCurrentToken = INVALID_INT;              // if the head was NULL, set currentToken to invalid value
-    printError(err35, " ");                     // error reading token from linked list
+    printError(err35, "320 ");                     // error reading token from linked list
     return head;                                // it will never reach this point, error will terminate program
 
 }
@@ -367,7 +367,7 @@ NODE *process_Block(NODE *head){
     }
 
     // error reading the current token from getNextTokenNode
-    printError(err35, " ");
+    printError(err35, "367 ");
     return nextTokenNode;
 
 
@@ -381,10 +381,20 @@ int existVar(char varName[]){
     int i = 0;
 
     for (i = 0; i < m_nVarCount; i++) {
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+        
+=======
+>>>>>>> Stashed changes
 
         //printf("%s\n", m_caVariables[i] );
 
 
+<<<<<<< Updated upstream
+=======
+>>>>>>> origin/master
+>>>>>>> Stashed changes
         if ( strsAreEqual(m_caVariables[i], varName) ) {
             return 1;
         }
@@ -399,9 +409,19 @@ int existConst(char constName[]){
     int i = 0;
 
     for (i = 0; i < m_nConstCount; i++) {
+<<<<<<< Updated upstream
 
         printf("%s\n", m_caConstants[i] );
 
+=======
+<<<<<<< HEAD
+        
+=======
+
+        printf("%s\n", m_caConstants[i] );
+
+>>>>>>> origin/master
+>>>>>>> Stashed changes
         if ( strsAreEqual(m_caConstants[i], constName) ) {
             return 1;
         }
@@ -416,9 +436,19 @@ int existProc(char procName[]){
     int i = 0;
 
     for (i = 0; i < m_nProcCount; i++) {
+<<<<<<< Updated upstream
 
 
 
+=======
+<<<<<<< HEAD
+        
+=======
+
+
+
+>>>>>>> origin/master
+>>>>>>> Stashed changes
         if ( strsAreEqual(m_caProcedures[i], procName)) {
             return 1;
         }
@@ -456,7 +486,7 @@ NODE *const_decl(NODE *head){
             nextTokenNode = getNextTokenNode(nextTokenNode);
             // token = 2
             if (m_nCurrentToken != identsym) {
-                printError(err36, " ");
+                printError(err36, "449 ");
             }
 
             // token = m
@@ -465,7 +495,7 @@ NODE *const_decl(NODE *head){
             // check if constant exist already as variable, constant or procedure
             if ( existVar(nextTokenNode->token) || existConst(nextTokenNode->token) || existProc(nextTokenNode->token) ){
                 // error constant already declared as a variable or procedure name
-                printError(err45, " ");
+                printError(err45, "458 ");
             }
 
 
@@ -479,13 +509,13 @@ NODE *const_decl(NODE *head){
             // token 9 or =
             nextTokenNode = getNextTokenNode(nextTokenNode);
             if (m_nCurrentToken != eqlsym) {
-                printError(err3, " ");
+                printError(err3, " 472");
             }
             // token = 3
             nextTokenNode = getNextTokenNode(nextTokenNode);
 
             if (m_nCurrentToken != numbersym) {
-                printError(err2, " ");
+                printError(err2, "478 ");
             }
             // token = 7 (the number that follows 3)
             //printf("token %s\n", nextTokenNode->token);
@@ -504,13 +534,13 @@ NODE *const_decl(NODE *head){
         } while (m_nCurrentToken == commasym);
 
         if (m_nCurrentToken != semicolonsym) {
-            printError(err37, " ");
+            printError(err37, "497 ");
         }
 
         return ( nextTokenNode = getNextTokenNode(nextTokenNode) );
     }
     // error reading the current token from getNextTokenNode
-    printError(err35, " ");
+    printError(err35, "503 ");
     return NULL;
 
 }
@@ -535,18 +565,20 @@ NODE *var_decl(NODE *head){
             // m_nCurrentToken is a comma after first loop, then read next variable
 
             nextTokenNode = getNextTokenNode(nextTokenNode);
+            
             // token = 2
             if (m_nCurrentToken != identsym) {
-                printError(err36, " ");
+                printError(err36, "531 ");
             }
 
             // store the variable name, and go to next token after string variable
             //m_caVariables[m_nVarCount++] = cIdent;
             //strncpy(cIdent, nextTokenNode->token, MAX_STR + 1);
             // check if variable exist already as variable, constant or procedure
+            
             if ( existVar(nextTokenNode->token) || existConst(nextTokenNode->token) || existProc(nextTokenNode->token) ){
                 // error constant already declared as a variable or procedure name
-                printError(err46, " ");
+                printError(err46, "541 ");
             }
             m_caVariables[m_nVarCount] = malloc((MAX_STR + 1) * sizeof(char));
             strncpy(m_caVariables[m_nVarCount++], nextTokenNode->token, MAX_STR + 1);
@@ -554,8 +586,19 @@ NODE *var_decl(NODE *head){
             // token has garbage
 
             nextTokenNode = getNextTokenNode(nextTokenNode); // skip
+<<<<<<< Updated upstream
 
 
+=======
+<<<<<<< HEAD
+            
+            
+            
+=======
+
+
+>>>>>>> origin/master
+>>>>>>> Stashed changes
             // is m_nCurrentToken a comma or different
             nextTokenNode = getNextTokenNode(nextTokenNode);
 
@@ -568,14 +611,14 @@ NODE *var_decl(NODE *head){
 
 
         if (m_nCurrentToken != semicolonsym) {
-            printError(err37, " ");
+            printError(err37, "564 ");
         }
 
         return ( nextTokenNode = getNextTokenNode(nextTokenNode) );
 
     }
     // error reading the current token from getNextTokenNode
-    printError(err35, " ");
+    printError(err35, "571 ");
     return NULL;
 }
 
@@ -592,12 +635,12 @@ NODE *proc_decl(NODE *head){
             // update the current token value and get the node pointer to next token
             nextTokenNode = getNextTokenNode(nextTokenNode);
             if (m_nCurrentToken != identsym) {
-                printError(err38, " ");
+                printError(err38, "588 ");
             }
 
             // check if variable exist already as variable, constant or procedure
             if ( existVar(nextTokenNode->token) || existConst(nextTokenNode->token) || existProc(nextTokenNode->token) ){
-                printError(err47, " ");
+                printError(err47, "593 ");
             }
 
             // store the procedure name, and go to next token
@@ -606,15 +649,27 @@ NODE *proc_decl(NODE *head){
             strncpy(m_caProcedures[m_nProcCount++], nextTokenNode->token, MAX_STR + 1);
             // just call nexttokennode and skip the variable string return integer (garbage)
             // token has garbage
+<<<<<<< Updated upstream
             nextTokenNode = getNextTokenNode(nextTokenNode); // skip
 
 
+=======
+<<<<<<< HEAD
+            
+            nextTokenNode = getNextTokenNode(nextTokenNode); // skip
+            
+=======
+            nextTokenNode = getNextTokenNode(nextTokenNode); // skip
+
+
+>>>>>>> origin/master
+>>>>>>> Stashed changes
             printf("%d, %s\n", procsym, m_caProcedures[m_nProcCount - 1]);
             //ENTER(procedure, ident);
 
             nextTokenNode = getNextTokenNode(nextTokenNode);
             if (m_nCurrentToken != semicolonsym) {
-                printError(err39, " ");
+                printError(err39, "610 ");
             }
 
             // get next token, increase the L level, call block procedure again
@@ -626,7 +681,7 @@ NODE *proc_decl(NODE *head){
 
 
             if (m_nCurrentToken != semicolonsym) {
-                printError(err40, " ");
+                printError(err40, "622 ");
             }
 
             nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -636,7 +691,7 @@ NODE *proc_decl(NODE *head){
 
     }
     // error reading the current token from getNextTokenNode
-    printError(err35, " ");
+    printError(err35, "632 ");
     return NULL;
 
 }
@@ -659,7 +714,7 @@ NODE *process_STATEMENT(NODE *head){
 
             case INVALID_INT:
                 // error reading the current token from getNextTokenNode
-                printError(err35, " ");
+                printError(err35, "655 ");
                 break;
 
                 // token is of kind identsym
@@ -671,18 +726,28 @@ NODE *process_STATEMENT(NODE *head){
 
                 // check if variable exist or not, if it does not exit, error11
                 if ( ! existVar(nextTokenNode->token) ){
-                    printError(err11, " ");
+                    printError(err11, " 667");
                 }
 
                 // just call nexttokennode and skip the variable string return integer (garbage)
                 // token has garbage
+                
                 nextTokenNode = getNextTokenNode(nextTokenNode); // skip
+<<<<<<< Updated upstream
 
+=======
+<<<<<<< HEAD
+                
+                
+=======
+
+>>>>>>> origin/master
+>>>>>>> Stashed changes
                 // gettoken
                 nextTokenNode = getNextTokenNode(nextTokenNode);
                 // if token <> " := "   error
                 if (m_nCurrentToken != becomessym) {
-                    printError(err41, " ");
+                    printError(err41, "680 ");
                 }
                 // gettoken
                 nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -698,7 +763,7 @@ NODE *process_STATEMENT(NODE *head){
                 nextTokenNode = getNextTokenNode(nextTokenNode);
                 // if token <> " identsym " error
                 if (m_nCurrentToken != identsym) {
-                    printError(err36, " ");
+                    printError(err36, " 696");
                 }
                 // store the procedure name, and go to next token
                 // does it have to call the procedure address? or just tokenize the lexemelist
@@ -706,7 +771,7 @@ NODE *process_STATEMENT(NODE *head){
 
                 // check if procedure exist or not, if it does not exit, error11
                 if ( ! existProc(nextTokenNode->token)  ){
-                    printError(err48, " ");
+                    printError(err48, "704 ");
                 }
                 // just call nexttokennode and skip the variable string return integer (garbage)
                 // token has garbage
@@ -734,7 +799,7 @@ NODE *process_STATEMENT(NODE *head){
                 }
                 // if token <> "end" error
                 if (m_nCurrentToken != endsym) {
-                    printError(err42, " ");
+                    printError(err42, "732 ");
                 }
                 // gettoken
                 nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -751,7 +816,7 @@ NODE *process_STATEMENT(NODE *head){
 
                 // if token <> "then" error
                 if (m_nCurrentToken != thensym) {
-                    printError(err16, " ");
+                    printError(err16, "749 ");
                 }
                 // gettoken
                 nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -769,18 +834,65 @@ NODE *process_STATEMENT(NODE *head){
                 nextTokenNode = process_CONDITION(nextTokenNode);
                 // if token <> "dosym" error
                 if (m_nCurrentToken != dosym) {
-                    printError(err18, " ");
+                    printError(err18, " 767");
                 }
                 // gettoken
                 nextTokenNode = getNextTokenNode(nextTokenNode);
                 //statement
                 nextTokenNode = process_STATEMENT(nextTokenNode);
 
+<<<<<<< Updated upstream
                 break;
 
+=======
+                break;
+<<<<<<< HEAD
+                
+            case writesym:
+                // generate
+                // gettoken
+                nextTokenNode = getNextTokenNode(nextTokenNode);
+                if (m_nCurrentToken == identsym) {
+                    
+                    // check if variable exist or not, if it does not exit, error11
+                    printf("token at line 783 %s\n", nextTokenNode->token );
+                    if ( existVar(nextTokenNode->token) ){
+                        // create code for LOD, 0, var address M // code for variable
+                        // create code for SIO 0 0
+                    } else if ( existConst(nextTokenNode->token) ) {
+                        // create code for LIT, 0, constant address M //code for constant
+                        // create code for SIO 0 0
+                    } else {
+                        // undeclared constant or variable
+                        printError(err11, "791 ");
+                    }
+                    nextTokenNode = getNextTokenNode(nextTokenNode); // skip
+                    nextTokenNode = getNextTokenNode(nextTokenNode); // after var or constant name
+                    printf("token at line 795 %s token is %d\n", nextTokenNode->token, m_nCurrentToken );
+                    // if token <> " ; semicolonsym " error
+                    if (m_nCurrentToken != semicolonsym) {
+                        printError(err5, "798 ");
+                    }
+                    
+                    //nextTokenNode = getNextTokenNode(nextTokenNode);
+                }
+                break;
+                
+            case endsym:
+                //retunextTokenNode = getNextTokenNode(nextTokenNode);
+                break;
+                
+            case periodsym:
+                // nextTokenNode = getNextTokenNode(nextTokenNode);
+                break;
+                
+=======
+
+>>>>>>> origin/master
+>>>>>>> Stashed changes
             default:
                 // failed to read lexeme list
-                printError(err35, " ");
+                printError(err35, "808 ");
                 break;
         }
 
@@ -789,7 +901,7 @@ NODE *process_STATEMENT(NODE *head){
     }
 
     // need to do error number here for failed to read lexemelist token
-    printError(err35, " ");
+    printError(err35, "787 ");
     // always must return something, at this point nextTokenNode is NULL
 
     return nextTokenNode;
@@ -822,7 +934,7 @@ NODE *process_EXPRESSION(NODE *head){
     }
 
     // need to do error number here for failed to read lexemelist token
-    printError(err35, " ");
+    printError(err35, "820 ");
     // always must return something
     return nextTokenNode;
 }
@@ -848,7 +960,7 @@ NODE *process_TERM(NODE *head){
     }
 
     // need to do error number here for failed to read lexemelist token
-    printError(err35, " ");
+    printError(err35, "846 ");
     // always must return something
     return nextTokenNode;
 }
@@ -865,16 +977,19 @@ NODE *process_FACTOR(NODE *head){
             case INVALID_INT:
 
                 // error reading the current token from getNextTokenNode
-                printError(err35, " ");
+                printError(err35, "863 ");
                 break;
 
             case identsym:
                 printf("factor, identsym\n");
-                nextTokenNode = getNextTokenNode(nextTokenNode); // skip
+                
                 // check if variable exist or not, if it does not exit, error11
-                if ( ! existVar(nextTokenNode->token) ){
-                    printError(err11, " ");
+                
+                if ( ! existConst(nextTokenNode->token) ){
+                    printError(err11, "line 866 ");
                 }
+                nextTokenNode = getNextTokenNode(nextTokenNode); // skip
+                
                 // do i need to handle reading the variable at the return
                 // get the variable name, need to do something with the variable name
                 nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -910,7 +1025,7 @@ NODE *process_FACTOR(NODE *head){
     }
 
     // need to do error number here for failed to read lexemelist token
-    printError(err35, " ");
+    printError(err35, "911 ");
     // always must return something
     return nextTokenNode;
 
@@ -947,7 +1062,7 @@ NODE *process_CONDITION(NODE *head){
     }
 
     // need to do error number here for failed to read lexemelist token
-    printError(err35, " ");
+    printError(err35, "948 ");
     // always must return something
     return nextTokenNode;
 }
@@ -967,11 +1082,14 @@ void printError(int ErrorNumber, char *strToken){
     if (ErrorNumber <= MAX_ERROR) {
         // to find error string, substract offset of 1
         printf("Error %d, %s\n", ErrorNumber, g_caErrorMsgs[ErrorNumber - 1]);
+        printf("%s\n", strToken);
         return;
     }
     // clean up after using the read tokens, you need to free the calloc spaced
     // when you are done with it
-    if(gListHead != NULL) { FreeMemoryAllocFront_to_Tail(gListHead); gListHead = NULL;}
+    //if(gListHead != NULL) { FreeMemoryAllocFront_to_Tail(gListHead); gListHead = NULL;}
+    //free_VAR_CONST_PROCS();
+    exit(EXIT_FAILURE);
     return;
 
 }
