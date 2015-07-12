@@ -58,7 +58,7 @@ void endOfProgram();
 // added july 12 to combine with driver
 void outStackAndRegistersToConsole();
 void outCodeLinesToConsole();
-int strsAreEqual(char * stt1, char *str2);
+
 
 /** global data structures */
 /*
@@ -92,12 +92,12 @@ int ARdiv[4 * MAX_LEXI_LEVELS];
 
 /*************** Initial call to program  ***********/
 
-int  runVM(int argc, char *argv) {
+int  runVM(int argc) {
     
     char *filename = NULL;
     
     if(argc) {
-        OTC = strsAreEqual(&argv[0], "-v");
+        OTC = argc;
     }
 
 
@@ -151,7 +151,7 @@ int  runVM(int argc, char *argv) {
     	if (RUN){
     		exeInstruction();
     	} else {
-    		endOfProgram();
+    		//endOfProgram();
     		exit(EXIT_SUCCESS);
     	}
     }
@@ -574,11 +574,7 @@ void outStackAndRegistersToConsole(){
     
 }
 
-int strsAreEqual(char * stt1, char *str2){
-    
-    return strcmp(stt1, str2) == 0;
-    
-}
+
 
 /** 
 * "endOfProgram()"

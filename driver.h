@@ -14,8 +14,8 @@
 #ifndef __GLOBALS_H
 #define __GLOBALS_H
 
-int runVM(int argc, char* argv);
-int runSC(int argc, char* argv);
+int runVM(int argc);
+int runSC(int argc);
 
 
 #endif
