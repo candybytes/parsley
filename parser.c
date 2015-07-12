@@ -70,7 +70,8 @@ int existVar(char varName[]);
 int existConst(char constName[]);
 int existProc(char procName[]);
 
-
+// Code generation function
+void cgen(NODE*);
 
 
 
