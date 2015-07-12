@@ -69,9 +69,9 @@ int existVar(char varName[]);
 int existConst(char constName[]);
 int existProc(char procName[]);
 
-void cgen(FILE* codeFile, NODE* token){
+// function where code is written to output file
+void cgen(FILE* codeFile, NODE* token);
 
-}
 
 
 
@@ -88,6 +88,13 @@ int main(int argc, char *argv[]) {
     if (ifp == NULL) {
         printError(err35, " ");
 
+    }
+
+    // creating a new output file to use in cgen() function
+    FILE *codeFile = NULL;
+    codeFile = fopen("outputfile.txt", "w");
+    if(codeFile == NULL){
+        printError(err35, " ");
     }
 
     // create a new ListHead
@@ -1044,6 +1051,12 @@ void printError(int ErrorNumber, char *strToken){
     //free_VAR_CONST_PROCS();
     exit(EXIT_FAILURE);
     return;
+
+}
+
+
+//-----------------code generator-------------------//
+void cgen(FILE* codeFile, NODE* token){
 
 }
 
