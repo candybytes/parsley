@@ -179,7 +179,7 @@ char *g_caErrorMsgs[MAX_ERROR] = {
     "Can not read file",//27
     "Can not write to file",//28
     "*/ end of comment-block missing",//29
-    "failed to allocate space using calloc",//30
+    "failed to allocate space using calloc or malloc",//30
     "invalid identsym",//31
     "invalid pair of symbols",//32
     "failed to initialized Namerecord_table",//33
