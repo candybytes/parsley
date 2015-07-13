@@ -20,6 +20,8 @@
 #include <string.h>
 #include "globals.h"
 
+int OTC = 0;
+
 
 //------------------ global constants and given constants by assigment -------
 
@@ -48,6 +50,7 @@ int isAlpha(char c);
 int isDigit(char c);
 int isPunct(char c);
 int binarySearch (int *Array, int top, int target);
+int strsAreEqual(char * stt1, char *str2);
 
 
 // -----------------Initial call to program  -----------------
@@ -63,7 +66,8 @@ int main(int argc, char *argv[]) {
     // -------must redo this section to take -l -a -v user input from console
     // ---------deprecated for #3 ----------
     if(argc > 1) {
-        FNS[input_txt] = argv[1];
+    	OTC = strsAreEqual(argv[1], "-l");
+        
     }
     
     // initialize global ctype int arrays
@@ -782,6 +786,8 @@ void printNamerecord_table(namerecord_t *record_table){
         // print headers to screen
         // printf("\n\n%-12s%s\n", LBLS[0], LBLS[1]); // deprecated for #3
         
+        if (OTC) { printf("\nScanners LexemeList\n");}
+        
         // print headers to lexemetable.txt file
         fprintf( lexTable, "%-12s%s\n", LBLS[0], LBLS[1] );
         
@@ -794,9 +800,11 @@ void printNamerecord_table(namerecord_t *record_table){
                 fprintf( lexTable, "%-12s%d\n", record_table[i].name, record_table[i].val );
                 
                 // print lexeme list
+                if (OTC ) { printf("%d ", record_table[i].val ); }
                 fprintf( lexList, "%d ", record_table[i].val );
                 // if lexeme is either a variable or a constant, print the variable or the constant right after the token type
                 if ( (record_table[i].val == 2) || (record_table[i].val == 3) ){
+                    if (OTC) { printf( "%s ", record_table[i].name ); }
                     fprintf( lexList, "%s ", record_table[i].name );
                 }
                 
@@ -861,6 +869,13 @@ void gInitGlobalintIsCharArrays(){
         g_naIsAlphaChar[ m_naAlphaChars[i] ] = 1;
         
     }
+    
+}
+
+// are strings equal, return 1 for true, 0 for false
+int strsAreEqual(char * stt1, char *str2){
+    
+    return strcmp(stt1, str2) == 0;
     
 }
 

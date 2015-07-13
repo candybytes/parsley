@@ -6,11 +6,9 @@ Assigment:	Programming Assignment #3: LinkedList
 Class: 		COP 3502, Spring 2014
 */
 
-
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include "driver.h"
+#include <stdio.h>
+
 
 int strsAreEqual(char * stt1, char *str2);
 
@@ -19,31 +17,52 @@ int printParserCode = 0;	// -a
 int printVMStack = 0;		// -v
 
 
+
 int main(int argc, char* argv[])
 {
     int i = 0;
-    char *test[] = {"-v", "-l"};
+    
+    char *PrintArgv[3];
     
     for (i = 0 ; i < argc; i++){
     	
-    	if ( (printLexemeScanner == 0) && strsAreEqual("-l", argv[i]) ) {
-    		printLexemeScanner = 1;
-    	}
+    	if ( strsAreEqual("-l", argv[i]) ) {
+    		printLexemeScanner = 1;	// -l	
+    	} 
     	
-    	if ( (printParserCode == 0) && strsAreEqual("-a", argv[i]) ) {
-    		printParserCode = 1;
-    	}
+    	if ( strsAreEqual("-a", argv[i]) ) {
+    		printParserCode = 1; // -a
+    	} 
     	
-    	if ( (printVMStack == 0) && strsAreEqual("-v", argv[i]) ) {
-    		printVMStack = 1;
+    	if ( strsAreEqual("-v", argv[i]) ) {
+    		printVMStack = 1; // -v
     	}
     	
     }
- 
     
-    runVM(printVMStack);
-    printf("\n");
-    //runSC(printLexemeScanner);
+    if (printLexemeScanner) {
+    	PrintArgv[0] = "gcc -o scanner scanner.c && ./scanner -l";// print lexeme
+    }
+    
+    PrintArgv[0] = "gcc -o scanner scanner.c && ./scanner"; // dont print lexeme
+    
+    if ( printParserCode ) {
+    	PrintArgv[1] = "gcc -o parser parser.c && ./parser -a";// print lexeme
+    }
+    
+    PrintArgv[1] = "gcc -o parser parser.c && ./parser"; // dont print lexeme
+    
+    if (printVMStack ) {
+    	PrintArgv[2] = "gcc -o vm vm.c && ./vm - v"; // print stackt trace
+    }
+    PrintArgv[2] = "gcc -o vm vm.c && ./vm"; // dont print stackt trace
+    
+ 	system(PrintArgv[0]);	// -l
+	//system(PrintArgv[1]);	// -a
+	system(PrintArgv[2]); 	// -v
+	return 0;
+    
+
     
     return 0;
 
