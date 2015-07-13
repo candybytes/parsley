@@ -28,6 +28,7 @@ int m_nTokVarFlag = 0;                  // use to flag if token is variable or c
 int m_nVariableStackAdrx = 4;           // variables start of address of first AR
 int m_nAR_Level = 0;                    // Activation Record first Level = 0;
 struct NODE *gListHead = NULL;          // global list head in case of error printing, free malloc from this pointer
+#define MAX_CODE_LENGTH 500             // max amount of tokenized instructions
 
 typedef char * string;
 // character array of 100 = MAX_VARS_CONST_PROC
@@ -40,6 +41,34 @@ int m_nVarCount = 0;
 int m_nConstCount = 0;
 int m_nProcCount = 0;
 int strsAreEqual(char * stt1, char *str2);
+void initializeNamerecord_table();
+
+/*
+ struct instructions {
+	int OP; // OP_code
+	int L;	// L_code
+	int M;	// M_code
+ };
+ 
+ //structure of the symbol table record
+ typedef struct {
+ 
+ int TokenType;                  // token type
+ int kind;                       // constant = 1; var = 2, proc = 3
+ char name[MAX_VAR_LEN + 1];     // name up to 11 characters long, 11 + 1 for \0
+ int val;                        // number (ASCII value)
+ int level;                      // L level
+ int adr;                        // M address
+ 
+ } namerecord_t;
+ 
+ */
+// there will be at most m_nCleanCount separate namerecord_t tokens
+namerecord_t namerecord_table[MAX_CODE_LENGTH];  // ARs token array
+struct instructions codeLines[MAX_CODE_LENGTH];         // instructions array
+struct instructions IR;                                 // single instruction
+int m_nCodeLineIndex = 0;                               // index for code line genetator
+int m_nNameRecordIndex = 0;                             // index for ARs token array
 
 
 //--------------------local data structures ---------------
@@ -71,6 +100,7 @@ void printVAR_CONST_PROCS();
 int existVar(char varName[]);
 int existConst(char constName[]);
 int existProc(char procName[]);
+int enterCode();
 
 
 
@@ -89,6 +119,11 @@ int main(int argc, char *argv[]) {
         printError(err35, " ");
        
     }
+    
+    // set up initial IR values
+    IR.OP = 0;
+    IR.L = 0;
+    IR.M = 0;
     
     // create a new ListHead
     NODE *ListHead = NULL;
@@ -828,7 +863,7 @@ NODE *process_STATEMENT(NODE *head){
                     printError(err12, "819 ");
                 } else {
                     // undeclared  variable
-                    printError(err11, "822 ");
+                    printError(err11, "831 ");
                 }
                 
                 
@@ -845,7 +880,7 @@ NODE *process_STATEMENT(NODE *head){
                 
             default:
                 // failed to read lexeme list
-                printError(err35, "808 ");
+                printError(err35, "848 ");
                 break;
         }
 
@@ -1021,7 +1056,29 @@ NODE *process_CONDITION(NODE *head){
     return nextTokenNode;
 }
 
-
+/*
+ *  initializeNamerecord_table(namerecord_t *record_table)
+ *  set the default values for the namerecord_t record_table
+ *  check that strcpy was valid for the char arrray
+ */
+void initializeNamerecord_table(){
+    // initialize tokens record table
+    int i = 0;
+    for (i = 0; i < MAX_CODE_LENGTH ; i++) {
+        
+        namerecord_table[i].kind = 0;           // constant = 1; var = 2, proc = 3
+        if ( strcpy(namerecord_table[i].name, "") == NULL) {
+            printError(err33, "Namerecord_table");
+            //printf("Error: fail creating space to store token string\n");
+            exit(EXIT_FAILURE);
+        };                                  // name up to 11 characters long, 11 + 1 for \0
+        namerecord_table[i].val = 0;            // number (ASCII value)
+        namerecord_table[i].level = 0;          // L level
+        namerecord_table[i].adr = 0;            // M address
+    }
+    return;
+    
+}
 
 // ------------------end of analyze tokens ---------------------------
 
