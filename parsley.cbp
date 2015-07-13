@@ -35,9 +35,6 @@
 		<Unit filename="parser.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="scanner3.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Extensions>
 			<code_completion />
 			<envvars />
