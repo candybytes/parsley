@@ -69,8 +69,9 @@ void initializeNamerecord_table();
  */
 // there will be at most m_nCleanCount separate namerecord_t tokens
 namerecord_t namerecord_table[MAX_CODE_LENGTH];  // ARs token array
+//namerecord_t singleNamerecord;  // // single Var, Const or Proc record
 struct instructions codeLines[MAX_CODE_LENGTH];         // instructions array
-struct instructions IR;                                 // single instruction
+//struct instructions IR;                                 // single instruction
 int m_nCodeLineCount = 0;                               // index for code line genetator
 int m_nNameRecordCount = 0;                             // index for ARs token array
 
@@ -125,10 +126,7 @@ int main(int argc, char *argv[]) {
         
     }
     
-    // set up initial IR values
-    IR.OP = 0;
-    IR.L = 0;
-    IR.M = 0;
+    
     
     // create a new ListHead
     NODE *ListHead = NULL;
@@ -499,6 +497,7 @@ NODE *const_decl(NODE *head){
     int nConstant = 0;
     NODE *nextTokenNode = NULL;
     nextTokenNode = head;
+    namerecord_t singleNamerecord;  // single Var, Const or Proc record
     
     if ( nextTokenNode != NULL){
         // token = 28 (constant)
