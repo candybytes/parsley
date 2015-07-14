@@ -11,9 +11,9 @@
  *  Created by Robert Valladares and Danish Waheed on 06/29/15.
  *  Copyright (c) 2015 ROBERT VALLADARES and DANISH WAHEED. All rights reserved.
  */
- 
- // ________________________________-line 672 identsym needs to check
- //---------------------------------for const exist too
+
+// ________________________________-line 672 identsym needs to check
+//---------------------------------for const exist too
 
 // Library declarations
 #include <stdio.h>
@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
     ifp = fopen("lexemelist.txt", "r");
     if (ifp == NULL) {
         printError(err35, " ");
-       
+        
     }
     
     // set up initial IR values
@@ -151,9 +151,9 @@ int main(int argc, char *argv[]) {
     // ----------test print ------------- //
     printf("%d tokens \n", m_n_inputTokens);
     
-
+    
     free_VAR_CONST_PROCS();
-
+    
     
     NODE *temp = NULL;
     temp = gListHead; // using global linkedlist pointer to head of list
@@ -295,11 +295,11 @@ void FreeMemoryAllocFront_to_Tail(NODE *head){
 
 void free_VAR_CONST_PROCS(){
     
-
+    
     
     int i = 0;
     for (i = 0; i < m_nVarCount; i++) {
- 
+        
         free(m_caVariables[i]);
     }
     
@@ -335,7 +335,7 @@ void procedure_PROGRAM(NODE *head){
         
         // process code block
         nextTokenNode = process_Block(nextTokenNode);
-
+        
         // program should have ended after processing code block, look for periodsym
         if (m_nCurrentToken != periodsym) {
             printError(err9, NULL);
@@ -397,7 +397,7 @@ NODE *process_Block(NODE *head){
         }
         
         nextTokenNode = process_STATEMENT(nextTokenNode);
-
+        
         return nextTokenNode;
         
     }
@@ -423,13 +423,13 @@ int existVar(char varName[]){
         
     }
     /*
-    for (i = 0; i < m_nVarCount; i++) {
-        
-        if ( strsAreEqual(m_caVariables[i], varName) ) {
-            return 1;
-        }
-        
-    }
+     for (i = 0; i < m_nVarCount; i++) {
+     
+     if ( strsAreEqual(m_caVariables[i], varName) ) {
+     return 1;
+     }
+     
+     }
      */
     
     return 0;
@@ -448,15 +448,15 @@ int existConst(char constName[]){
     }
     
     /*
-    for (i = 0; i < m_nConstCount; i++) {
-        
-        if ( strsAreEqual(m_caConstants[i], constName) ) {
-            return 1;
-        }
-        
-    }
+     for (i = 0; i < m_nConstCount; i++) {
+     
+     if ( strsAreEqual(m_caConstants[i], constName) ) {
+     return 1;
+     }
+     
+     }
      */
-
+    
     return 0;
 }
 
@@ -473,13 +473,13 @@ int existProc(char procName[]){
     }
     
     /*
-    for (i = 0; i < m_nProcCount; i++) {
-        
-        if ( strsAreEqual(m_caProcedures[i], procName)) {
-            return 1;
-        }
-        
-    }
+     for (i = 0; i < m_nProcCount; i++) {
+     
+     if ( strsAreEqual(m_caProcedures[i], procName)) {
+     return 1;
+     }
+     
+     }
      */
     
     return 0;
@@ -507,7 +507,7 @@ NODE *const_decl(NODE *head){
             // " 28 2 m 9 3 7 " is translated as "const m = 7 "
             
             // token = 28 (constant declaration)
-
+            
             
             // update the current token value and get the node pointer to next token
             nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -723,7 +723,7 @@ NODE *process_STATEMENT(NODE *head){
                 printError(err35, "655 ");
                 break;
                 
-            // token is of kind identsym
+                // token is of kind identsym
             case identsym:
                 
                 // store the variable name, and go to next token after string variable
@@ -897,7 +897,7 @@ NODE *process_STATEMENT(NODE *head){
             case endsym:
                 //retunextTokenNode = getNextTokenNode(nextTokenNode);
                 break;
-            
+                
             case periodsym:
                 // nextTokenNode = getNextTokenNode(nextTokenNode);
                 break;
@@ -907,11 +907,11 @@ NODE *process_STATEMENT(NODE *head){
                 printError(err35, "848 ");
                 break;
         }
-
+        
         return nextTokenNode;
         
     }
-
+    
     // need to do error number here for failed to read lexemelist token
     printError(err35, "787 ");
     // always must return something, at this point nextTokenNode is NULL
@@ -991,13 +991,13 @@ NODE *process_FACTOR(NODE *head){
                 // error reading the current token from getNextTokenNode
                 printError(err35, "863 ");
                 break;
-            
+                
             case identsym:
                 //printf("factor, identsym\n");
                 
                 // check if variable exist or not, if it does not exit, error11
-               
-               printf("%s \n", nextTokenNode->token);
+                
+                printf("%s \n", nextTokenNode->token);
                 if ( ! existVar(nextTokenNode->token) ){
                     printError(err11, "line 866 ");
                 }
@@ -1011,7 +1011,7 @@ NODE *process_FACTOR(NODE *head){
             case numbersym:
                 
                 nextTokenNode = getNextTokenNode(nextTokenNode); // skip
-
+                
                 // do i need to handle reading the number at the return
                 // get the number, need to do something with the number
                 nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -1030,7 +1030,7 @@ NODE *process_FACTOR(NODE *head){
             default:
                 printError(err44, " ");
                 break;
-            
+                
         }
         
         return nextTokenNode;
@@ -1104,6 +1104,23 @@ void initializeNamerecord_table(){
     
 }
 
+void enterNamerecord_table(int nKind, char caName[], int nVal, int nLevel, int nAdr ){
+    
+    
+    namerecord_table[i].kind = 0;           // constant = 1; var = 2, proc = 3
+    if ( strcpy(namerecord_table[i].name, caName) == NULL) {
+        printError(err33, "Namerecord_table");
+        //printf("Error: fail creating space to store token string\n");
+        exit(EXIT_FAILURE);
+    };                                  // name up to 11 characters long, 11 + 1 for \0
+    namerecord_table[i].val = 0;            // number (ASCII value)
+    namerecord_table[i].level = 0;          // L level
+    namerecord_table[i].adr = 0;            // M address
+}
+return;
+
+}
+
 // ------------------end of analyze tokens ---------------------------
 
 // ------------------code processing ------------------------
@@ -1126,7 +1143,7 @@ void enterCode(int nOPcode, int nLcode, int nMcode){
  *  Print the string that is represented by the error number passed
  */
 void printError(int ErrorNumber, char *strToken){
-
+    
     // print the error message given an error number from g_caErrorMsgs[] char* array
     if (ErrorNumber <= MAX_ERROR) {
         // to find error string, substract offset of 1
@@ -1134,7 +1151,7 @@ void printError(int ErrorNumber, char *strToken){
         printf("%s\n", strToken);
         return;
     }
-        // clean up after using the read tokens, you need to free the calloc spaced
+    // clean up after using the read tokens, you need to free the calloc spaced
     // when you are done with it
     //if(gListHead != NULL) { FreeMemoryAllocFront_to_Tail(gListHead); gListHead = NULL;}
     //free_VAR_CONST_PROCS();
