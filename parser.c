@@ -378,7 +378,7 @@ int existVar(char varName[]){
     for (i = 0; i < m_nNameRecordCount; i++) {
         
         if ( strsAreEqual(namerecord_table[i].name, varName) & (namerecord_table[i].kind == lexVar) ) {
-            return 1;
+            return i + 1;
         }
         
     }
@@ -394,7 +394,7 @@ int existConst(char constName[]){
     for (i = 0; i < m_nNameRecordCount; i++) {
         
         if ( strsAreEqual(namerecord_table[i].name, constName) & (namerecord_table[i].kind == lexConstant) ) {
-            return 1;
+            return i + 1;
         }
         
     }
@@ -410,7 +410,7 @@ int existProc(char procName[]){
     for (i = 0; i < m_nNameRecordCount; i++) {
         
         if ( strsAreEqual(namerecord_table[i].name, procName) & (namerecord_table[i].kind == lexProc) ) {
-            return 1;
+            return i + 1;
         }
         
     }
@@ -523,8 +523,6 @@ NODE *var_decl(NODE *head){
         // var a, b;  is the same as 29 2 a 17 2 b 18,
         // this is processing from a, b; a is variable thus the 2 a 17 2 b 18
         // update the current token value and get the node pointer to next token
-        // need to check if variable is valid, does it start with a number?
-        
         
         // m_nCurrentToken is varsym 29  "var" at begining of do loop
         do {
@@ -566,8 +564,6 @@ NODE *var_decl(NODE *head){
             
             // store the created single Name record into the array
             namerecord_table[m_nNameRecordCount++] = singleNamerecord;
-            
-            
             
             // is m_nCurrentToken a comma or different
             nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -633,7 +629,7 @@ NODE *proc_decl(NODE *head){
             // store the created single Name record into the array
             namerecord_table[m_nNameRecordCount++] = singleNamerecord;
             
-            printf("procedure 611:: %d, %s\n", singleNamerecord.kind, singleNamerecord.name);
+            printf("procedure 632:: %d, %s\n", singleNamerecord.kind, singleNamerecord.name);
             //ENTER(procedure, ident);
             
             nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -670,9 +666,12 @@ NODE *proc_decl(NODE *head){
 
 NODE *process_STATEMENT(NODE *head){
     
-    //printf("\nEntered statement, token is %d\n", m_nCurrentToken);
+    int currentCodeLine = 0;
+    int beginWhileLine = 0;
+    int endWhileLine = 0;
     
-    char cIdent[MAX_STR + 1] = " ";
+    int nRecordFoundIndex = 0;
+    
     char cProcedureCall[MAX_STR + 1] = " ";
     
     NODE *nextTokenNode = NULL;
@@ -688,22 +687,20 @@ NODE *process_STATEMENT(NODE *head){
                 break;
                 
                 // token is of kind identsym
-            case identsym:
+            case identsym: // done
                 
                 // store the variable name, and go to next token after string variable
-                // need to handle variable address lookup here most likely
-                strncpy(cIdent, nextTokenNode->token, MAX_STR + 1);
                 
                 // check if variable exist or not, if it does not exit, error11
-                if ( ! existVar(nextTokenNode->token) ){
+                if ( !( nRecordFoundIndex = existVar(nextTokenNode->token) )){
                     printError(err11, " 672");
                 }
-                
+                nRecordFoundIndex -= 1; // fix the offset return from existVar i + 1;
+                printf("variable %s address %d\n", namerecord_table[nRecordFoundIndex].name, namerecord_table[nRecordFoundIndex].adr);
                 // just call nexttokennode and skip the variable string return integer (garbage)
                 // token has garbage
                 
                 nextTokenNode = getNextTokenNode(nextTokenNode); // skip
-                
                 
                 // gettoken
                 nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -715,6 +712,9 @@ NODE *process_STATEMENT(NODE *head){
                 nextTokenNode = getNextTokenNode(nextTokenNode);
                 // expression
                 nextTokenNode = process_EXPRESSION(nextTokenNode);
+                
+                // create a code line for VM
+                enterCode(sto, namerecord_table[nRecordFoundIndex].level, namerecord_table[nRecordFoundIndex].adr);
                 
                 break;
                 
@@ -744,7 +744,7 @@ NODE *process_STATEMENT(NODE *head){
                 
                 break;
                 
-            case beginsym:
+            case beginsym: //done
                 // token is of kind  beginsym
                 
                 // gettoken
@@ -767,7 +767,7 @@ NODE *process_STATEMENT(NODE *head){
                 nextTokenNode = getNextTokenNode(nextTokenNode);
                 break;
                 
-            case ifsym:
+            case ifsym: // done
                 // token is of kind ifsym
                 
                 // gettoken
@@ -780,20 +780,35 @@ NODE *process_STATEMENT(NODE *head){
                 if (m_nCurrentToken != thensym) {
                     printError(err16, "749 ");
                 }
+                // get current VM codeLine
+                currentCodeLine = m_nCodeLineCount;
+                // create a code line for VM
+                enterCode(jpc, 0, 0);
                 // gettoken
                 nextTokenNode = getNextTokenNode(nextTokenNode);
                 //statement
                 nextTokenNode = process_STATEMENT(nextTokenNode);
+                // store the value of M after statement
+                codeLines[currentCodeLine].M = m_nCodeLineCount;
+                
                 
                 break;
                 
-            case whilesym:
+            case whilesym: // done
                 // token is of kind whilesym
+                // at what line did while loop start
+                beginWhileLine = m_nCodeLineCount;
+                
                 
                 // gettoken
                 nextTokenNode = getNextTokenNode(nextTokenNode);
                 //condition
                 nextTokenNode = process_CONDITION(nextTokenNode);
+                // at what line did while loop end
+                endWhileLine = m_nCodeLineCount;
+                // create a code line for VM
+                enterCode(jpc, 0, 0);
+                
                 // if token <> "dosym" error
                 if (m_nCurrentToken != dosym) {
                     printError(err18, " 767");
@@ -802,6 +817,10 @@ NODE *process_STATEMENT(NODE *head){
                 nextTokenNode = getNextTokenNode(nextTokenNode);
                 //statement
                 nextTokenNode = process_STATEMENT(nextTokenNode);
+                enterCode(jmp, 0, beginWhileLine);
+                // store the value of M after statement
+                codeLines[endWhileLine].M = m_nCodeLineCount;
+                
                 
                 break;
                 
