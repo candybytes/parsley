@@ -104,7 +104,7 @@ void printVAR_CONST_PROCS();
 int existVar(char varName[]);
 int existConst(char constName[]);
 int existProc(char procName[]);
-int enterCode(int OPcode, int Lval, int Mval);
+void enterCode(int OPcode, int Lval, int Mval);
 void enterNamerecord_table(int nKind, char caName[], int nVal, int nLevel, int nAdr );
 
 
@@ -418,7 +418,7 @@ int existVar(char varName[]){
     
     for (i = 0; i < m_nNameRecordCount; i++) {
         
-        if ( strsAreEqual(namerecord_table[i].name, varName) & namerecord_table[i].kind = lexVar ) {
+        if ( strsAreEqual(namerecord_table[i].name, varName) & (namerecord_table[i].kind == lexVar) ) {
             return 1;
         }
         
@@ -442,7 +442,7 @@ int existConst(char constName[]){
     
     for (i = 0; i < m_nNameRecordCount; i++) {
         
-        if ( strsAreEqual(namerecord_table[i].name, varName) & namerecord_table[i].kind = lexConstant ) {
+        if ( strsAreEqual(namerecord_table[i].name, constName) & (namerecord_table[i].kind == lexConstant) ) {
             return 1;
         }
         
@@ -467,7 +467,7 @@ int existProc(char procName[]){
     
     for (i = 0; i < m_nNameRecordCount; i++) {
         
-        if ( strsAreEqual(namerecord_table[i].name, varName) & namerecord_table[i].kind = lexProc ) {
+        if ( strsAreEqual(namerecord_table[i].name, procName) & (namerecord_table[i].kind == lexProc) ) {
             return 1;
         }
         
@@ -1109,7 +1109,7 @@ void enterNamerecord_table(int nKind, char caName[], int nVal, int nLevel, int n
     
     
     namerecord_table[m_nNameRecordCount].kind = nKind;           // constant = 1; var = 2, proc = 3
-    if ( strcpy(namerecord_table[i].name, caName) == NULL) {
+    if ( strcpy(namerecord_table[m_nNameRecordCount].name, caName) == NULL) {
         printError(err33, "Namerecord_table");
         //printf("Error: fail creating space to store token string\n");
         exit(EXIT_FAILURE);
@@ -1117,7 +1117,7 @@ void enterNamerecord_table(int nKind, char caName[], int nVal, int nLevel, int n
     namerecord_table[m_nNameRecordCount].val = nVal;            // number (ASCII value)
     namerecord_table[m_nNameRecordCount].level = nLevel;        // L level
     namerecord_table[m_nNameRecordCount].adr = nAdr;            // M address
-    m_nNameRecordCount;
+    m_nNameRecordCount++;
     
     return;
     
@@ -1130,13 +1130,13 @@ void enterNamerecord_table(int nKind, char caName[], int nVal, int nLevel, int n
 void enterCode(int nOPcode, int nLcode, int nMcode){
     
     // store the values into struct array
-    code[m_nCodeLineCount].OP = nOPcode;
-    code[m_nCodeLineCount].L = nLcode;
-    code[m_nCodeLineCount].M = nMcode;
+    codeLines[m_nCodeLineCount].OP = nOPcode;
+    codeLines[m_nCodeLineCount].L = nLcode;
+    codeLines[m_nCodeLineCount].M = nMcode;
     
     m_nCodeLineCount++;
     
-    return 0;
+    return;
 }
 
 
