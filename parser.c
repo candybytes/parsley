@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
     
     
     while (fscanf(ifp, "%s", iToken) != EOF) {
-        // instead of printf, just create a new node of linked list with string
+        // instead of //printf, just create a new node of linked list with string
         // or add them to a char * array, less code
         ListHead = InsertAtTail(ListHead, iToken);
         m_n_inputTokens++;
@@ -139,13 +139,13 @@ int main(int argc, char *argv[]) {
     // close the input file
     fclose(ifp);
     // ----------test print ------------- //
-    printf("%d tokens \n", m_n_inputTokens);
+    //printf("%d tokens \n", m_n_inputTokens);
     
     
     NODE *temp = NULL;
     temp = gListHead; // using global linkedlist pointer to head of list
     for (i =0; i < m_n_inputTokens; i++) {
-        //printf("token %s\n", temp->token);
+        ////printf("token %s\n", temp->token);
         temp =  temp->next != NULL ? temp->next : temp;
         
     }
@@ -193,7 +193,7 @@ NODE *NewNode(char str[]){
     } else {
         // malloc failed, ptr is still null
         printError(err30, "172");
-        //printf("Failer to malloc space for node\n");
+        ////printf("Failer to malloc space for node\n");
     }
     // return the pointer to the new created node, or NULL if it failed to malloc space
     return brandNewNode;
@@ -213,7 +213,7 @@ NODE *InsertAtTail(NODE *head, char str[]){
         // check if creating a new list failed
         if (head == NULL) {
             printError(err30, "192");
-            //printf("Failed to create a new 1 element LinkList head");
+            ////printf("Failed to create a new 1 element LinkList head");
         }
         // if the head was null, a new list was created, return pointer to new list
         return head;
@@ -225,7 +225,7 @@ NODE *InsertAtTail(NODE *head, char str[]){
     newTailNode = NewNode(str);
     if (newTailNode == NULL) {
         printError(err30, "192");
-        //printf("Failed to create a new node at the tail");
+        ////printf("Failed to create a new node at the tail");
     }
     // check if you are at the tail before inserting
     NODE *current = head;
@@ -320,7 +320,7 @@ NODE *getNextTokenNode(NODE *head){
     if ( head != NULL && m_nListIndex < m_n_inputTokens ){
         // cast string token to integer value only if its not a variable or constant declaration
         // " 2 m 9 3 7 " is translated as " m = 7 "
-        printf("string token %s\n", head->token);
+        //printf("string token %s\n", head->token);
         m_nCurrentToken = atoi(head->token);    // update the current token value
         head = head->next;                      // next token node
         m_nListIndex++;                         // next list index
@@ -456,7 +456,7 @@ NODE *const_decl(NODE *head){ // done
             }
             
             // copy the name of the constant
-            printf(" 530 %s\n", nextTokenNode->token );
+            //printf(" 530 %s\n", nextTokenNode->token );
             strcpy(singleNamerecord.name, nextTokenNode->token);
             // set the type of the constant
             singleNamerecord.kind = lexConstant;
@@ -492,7 +492,7 @@ NODE *const_decl(NODE *head){ // done
             namerecord_table[m_nNameRecordCount++] = singleNamerecord;
             m_nConstCount++;
             
-            printf("constant 493::  %d, %s, %d\n", singleNamerecord.kind, singleNamerecord.name, singleNamerecord.val);
+            //printf("constant 493::  %d, %s, %d\n", singleNamerecord.kind, singleNamerecord.name, singleNamerecord.val);
             
             // token could be coma or semicolon , ;
             nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -570,7 +570,7 @@ NODE *var_decl(NODE *head){ // done
             
             // TO-DO. Create method ENTER or some other method that processes the Values
             //ENTER(m_nVariableStackAdrx, cIdent, m_nAR_Level);
-            printf("variable 563 :: %d, %s, %d\n", singleNamerecord.adr, singleNamerecord.name, singleNamerecord.level);
+            //printf("variable 563 :: %d, %s, %d\n", singleNamerecord.adr, singleNamerecord.name, singleNamerecord.level);
             m_nVariableStackAdrx++;
             
         } while (m_nCurrentToken == commasym );
@@ -629,7 +629,7 @@ NODE *proc_decl(NODE *head){ // done
             // store the created single Name record into the array
             namerecord_table[m_nNameRecordCount++] = singleNamerecord;
             
-            printf("procedure 632:: %d, %s\n", singleNamerecord.kind, singleNamerecord.name);
+            //printf("procedure 632:: %d, %s\n", singleNamerecord.kind, singleNamerecord.name);
             //ENTER(procedure, ident);
             
             nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -664,7 +664,7 @@ NODE *proc_decl(NODE *head){ // done
 
 
 
-NODE *process_STATEMENT(NODE *head){
+NODE *process_STATEMENT(NODE *head){ // done
     
     int currentCodeLine = 0;
     int beginWhileLine = 0;
@@ -694,7 +694,7 @@ NODE *process_STATEMENT(NODE *head){
                     printError(err11, " 672");
                 }
                 nRecordFoundIndex -= 1; // fix the offset return from existVar i + 1;
-                printf("variable %s address %d\n", namerecord_table[nRecordFoundIndex].name, namerecord_table[nRecordFoundIndex].adr);
+                //printf("variable %s address %d\n", namerecord_table[nRecordFoundIndex].name, namerecord_table[nRecordFoundIndex].adr);
                 // just call nexttokennode and skip the variable string return integer (garbage)
                 // token has garbage
                 
@@ -747,9 +747,13 @@ NODE *process_STATEMENT(NODE *head){
                 
                 // statement
                 nextTokenNode = process_STATEMENT(nextTokenNode);
-                
+                /*//printf("750 current token %d next token string %s\n",m_nCurrentToken, nextTokenNode->token);
+                 if (m_nCurrentToken == 2 && (existVar(nextTokenNode->token) || existConst(nextTokenNode->token))) {
+                 nextTokenNode = getNextTokenNode(nextTokenNode); // skip
+                 }
+                 */
                 nextTokenNode = getNextTokenNode(nextTokenNode); // skip
-                
+                //printf("755 current token %d next token string %s\n",m_nCurrentToken, nextTokenNode->token);
                 while (m_nCurrentToken == semicolonsym) {
                     // gettoken
                     nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -757,6 +761,7 @@ NODE *process_STATEMENT(NODE *head){
                     nextTokenNode = process_STATEMENT(nextTokenNode);
                 }
                 // if token <> "end" error
+                //printf("760 current token %d next token string %s\n",m_nCurrentToken, nextTokenNode->token);
                 if (m_nCurrentToken != endsym) {
                     printError(err42, "732 ");
                 }
@@ -856,11 +861,11 @@ NODE *process_STATEMENT(NODE *head){
                 break;
                 
             case readsym: // done
-                //printf(" %s token ar line 859, value %d\n", nextTokenNode->token, m_nCurrentToken );
+                ////printf(" %s token ar line 859, value %d\n", nextTokenNode->token, m_nCurrentToken );
                 nextTokenNode = getNextTokenNode(nextTokenNode);
                 
                 // check if variable exist or not, if it does not exit, error11
-                //printf(" %s token ar line 863, value %d \n", nextTokenNode->token, m_nCurrentToken );
+                ////printf(" %s token ar line 863, value %d \n", nextTokenNode->token, m_nCurrentToken );
                 if (m_nCurrentToken != identsym) {
                     printError(err49, "865 ");
                 }
@@ -987,7 +992,7 @@ NODE *process_TERM(NODE *head){ // done
     return nextTokenNode;
 }
 
-NODE *process_FACTOR(NODE *head){
+NODE *process_FACTOR(NODE *head){// done
     
     int nRecordFoundIndex = 0;
     
@@ -1005,13 +1010,20 @@ NODE *process_FACTOR(NODE *head){
                 break;
                 
             case identsym:
-                //printf("factor, identsym\n");
+                ////printf("factor, identsym\n");
                 
                 // check if variable exist or not, if it does not exit, error11
                 
                 if (  !(( nRecordFoundIndex = existVar(nextTokenNode->token)) || (nRecordFoundIndex = existConst(nextTokenNode->token)) )){
                     printError(err11, "line 1013 ");
                 }
+                if (namerecord_table[nRecordFoundIndex].kind == lexConstant){
+                    enterCode(lit, 0, namerecord_table[nRecordFoundIndex].val);
+                }
+                if (namerecord_table[nRecordFoundIndex].kind == lexVar){
+                    enterCode(lod  , 0, namerecord_table[nRecordFoundIndex].adr);
+                }
+                
                 nextTokenNode = getNextTokenNode(nextTokenNode); // skip
                 
                 // do i need to handle reading the variable at the return
@@ -1022,6 +1034,7 @@ NODE *process_FACTOR(NODE *head){
             case numbersym:
                 
                 nextTokenNode = getNextTokenNode(nextTokenNode); // skip
+                enterCode(lit  , 0, m_nCurrentToken);
                 
                 // do i need to handle reading the number at the return
                 // get the number, need to do something with the number
@@ -1057,16 +1070,23 @@ NODE *process_FACTOR(NODE *head){
 
 NODE *process_CONDITION(NODE *head){
     
+    int nOp = 0;
+    
     NODE *nextTokenNode = NULL;
     nextTokenNode = head;
     
     if ( nextTokenNode != NULL){
         
         if (m_nCurrentToken == oddsym) {
+            
+            nOp = m_nCurrentToken;
             // gettoken
             nextTokenNode = getNextTokenNode(nextTokenNode);
             // expression
             nextTokenNode = process_EXPRESSION(nextTokenNode);
+            
+            enterCode(opr, 0, odd);
+            
         } else {
             // expression
             nextTokenNode = process_EXPRESSION(nextTokenNode);
@@ -1074,14 +1094,32 @@ NODE *process_CONDITION(NODE *head){
             if ( (m_nCurrentToken < eqlsym) || (m_nCurrentToken > geqsym) ){
                 printError(err20, " ");
             }
-            
+            nOp = m_nCurrentToken;
             // gettoken
             nextTokenNode = getNextTokenNode(nextTokenNode);
             // expression
             nextTokenNode = process_EXPRESSION(nextTokenNode);
+            
+            if(nOp == eqlsym)
+                enterCode( opr, 0, eql ); // ==
+            
+            else if(nOp == neqsym )
+                enterCode( opr, 0, neq ); // !=
+            
+            else if(nOp == lessym )
+                enterCode( opr, 0, lss ); // <
+            
+            else if(nOp == leqsym )
+                enterCode( opr, 0, leq ); // <=
+            
+            else if (nOp == gtrsym )
+                enterCode( opr, 0, gtr ); // >
+            
+            else if(nOp == geqsym)
+                enterCode( opr, 0, geq ); // >=
         }
         
-        return nextTokenNode;
+        return nextTokenNode = getNextTokenNode(nextTokenNode);
         
     }
     
@@ -1104,7 +1142,7 @@ void initializeNamerecord_table(){
         namerecord_table[i].kind = 0;           // constant = 1; var = 2, proc = 3
         if ( strcpy(namerecord_table[i].name, "") == NULL) {
             printError(err33, "Namerecord_table");
-            //printf("Error: fail creating space to store token string\n");
+            ////printf("Error: fail creating space to store token string\n");
             exit(EXIT_FAILURE);
         };                                  // name up to 11 characters long, 11 + 1 for \0
         namerecord_table[i].val = 0;            // number (ASCII value)
@@ -1121,7 +1159,7 @@ void enterNamerecord_table(int nKind, char caName[], int nVal, int nLevel, int n
     namerecord_table[m_nNameRecordCount].kind = nKind;           // constant = 1; var = 2, proc = 3
     if ( strcpy(namerecord_table[m_nNameRecordCount].name, caName) == NULL) {
         printError(err33, "Namerecord_table");
-        //printf("Error: fail creating space to store token string\n");
+        ////printf("Error: fail creating space to store token string\n");
         exit(EXIT_FAILURE);
     };                                                          // name up to 11 characters long, 11 + 1 for \0
     namerecord_table[m_nNameRecordCount].val = nVal;            // number (ASCII value)
@@ -1159,8 +1197,9 @@ void printError(int ErrorNumber, char *strToken){
     // print the error message given an error number from g_caErrorMsgs[] char* array
     if (ErrorNumber <= MAX_ERROR) {
         // to find error string, substract offset of 1
-        printf("Error %d, %s\n", ErrorNumber, g_caErrorMsgs[ErrorNumber - 1]);
-        printf("%s\n", strToken);
+        printf("Error %d\n", ErrorNumber);
+        //printf("Error %d, %s\n", ErrorNumber, g_caErrorMsgs[ErrorNumber - 1]);
+        //printf("%s\n", strToken);
         return;
     }
     // clean up after using the read tokens, you need to free the calloc spaced
