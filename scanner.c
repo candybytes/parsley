@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
     // -------must redo this section to take -l -a -v user input from console
     // ---------deprecated for #3 ----------
     if(argc > 1) {
-    	OTC = strsAreEqual(argv[1], "-l");
+        OTC = strsAreEqual(argv[1], "-l");
         
     }
     
@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
     freeInputTokenCalloc(caCleanInputTokens);
     
     // program finished, if no error were found, it will reach this point
-
+    
     
     return 0;
 }
@@ -305,7 +305,7 @@ void cleanInput(FILE *fp, char src[], int count, char cleanSrc[]){
  * "fileReadError(char fileName[], int reading)"
  * prints a standard file read-open-write error message
  * if int reading = 1, then print reading, else reading = 0 = writing
-*  -----------DEPRECATED, NO LONGER NEEDED, WILL DELETE AT A LATER TIME -------------
+ *  -----------DEPRECATED, NO LONGER NEEDED, WILL DELETE AT A LATER TIME -------------
  *
  */
 void fileReadError(char fileName[], int writing ){
@@ -405,7 +405,7 @@ int isSpecialChar(char c){
     // if char c is a special char it will have a non 0 return with offset of 1
     // that will be handled by caller
     return g_naIsSpecialChar[ (int)c ];
-
+    
 }
 
 /*
@@ -556,7 +556,7 @@ void IdentifyInputToken(char *caCleanInputTokens[], namerecord_t *record_table){
         if ( ( rw = isReserverdWord(str) ) && tknlen > 1 ){
             // insert token record in record_table
             insertNamerecord_table(LexRecordIndex++, record_table, lexProc, 0, ' ', ' ', str, m_naWsym[(rw - 1)] );
-
+            
             continue;
         }
         
@@ -566,14 +566,14 @@ void IdentifyInputToken(char *caCleanInputTokens[], namerecord_t *record_table){
             
             // insert token record in record_table
             insertNamerecord_table(LexRecordIndex++, record_table, lexConstant, 0, ' ', ' ', str, 3 );
-
+            
             continue;
         }
         
         // check if token is variable
         if  (isValidVariableAndNotReserved(str)){
             // if is invalid length or illegal variable, it will fail at check
-
+            
             // insert token record in record_table
             insertNamerecord_table(LexRecordIndex++, record_table, lexVar, 0, ' ', ' ', str, 2 );
             
@@ -646,7 +646,7 @@ int validSymbolPair(char c1, char c2){
     }
     
     return r;
-
+    
 }
 
 //----------------------ctype functions ---- 1 for numerical, 2 for letter, 3 for punctuation
@@ -689,7 +689,7 @@ int binarySearch (int *Array, int top, int target) {
 int isDigit(char c){
     // if char c is a number, it will return a 1, else 0 as found in global array
     return g_naIsNumerical[ (int)c ];
-
+    
 }
 
 /*
@@ -709,7 +709,7 @@ int isAlpha(char c){
 int isPunct(char c){
     // if char c is a punctuation, it will return a 1, else 0 as found in global array
     return g_naIsPunctChar[ (int)c ] * 3;
-
+    
 }
 
 /*
@@ -811,7 +811,7 @@ void printNamerecord_table(namerecord_t *record_table){
             }
         }
     }
-    
+    if (OTC) { printf("\n\n");}
     // close the -lexemetable.txt- file pointer
     fclose(lexTable);
     // close the -lexemelist.txt- file pointer
