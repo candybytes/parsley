@@ -424,7 +424,7 @@ int strsAreEqual(char * stt1, char *str2){
     
 }
 
-NODE *const_decl(NODE *head){
+NODE *const_decl(NODE *head){ // done
     
     
     NODE *nextTokenNode = NULL;
@@ -511,7 +511,7 @@ NODE *const_decl(NODE *head){
     
 }
 
-NODE *var_decl(NODE *head){
+NODE *var_decl(NODE *head){ // done
     
     namerecord_t singleNamerecord;  // single Var, Const or Proc record
     
@@ -588,7 +588,7 @@ NODE *var_decl(NODE *head){
     return NULL;
 }
 
-NODE *proc_decl(NODE *head){
+NODE *proc_decl(NODE *head){ // done
     
     namerecord_t singleNamerecord;  // single Var, Const or Proc record
     
@@ -672,8 +672,6 @@ NODE *process_STATEMENT(NODE *head){
     
     int nRecordFoundIndex = 0;
     
-    char cProcedureCall[MAX_STR + 1] = " ";
-    
     NODE *nextTokenNode = NULL;
     nextTokenNode = head;
     
@@ -727,9 +725,6 @@ NODE *process_STATEMENT(NODE *head){
                 if (m_nCurrentToken != identsym) {
                     printError(err36, " 696");
                 }
-                // store the procedure name, and go to next token
-                // does it have to call the procedure address? or just tokenize the lexemelist
-                strncpy(cProcedureCall, nextTokenNode->token, MAX_STR + 1);
                 
                 // check if procedure exist or not, if it does not exit, error11
                 if ( ! existProc(nextTokenNode->token)  ){
@@ -752,6 +747,8 @@ NODE *process_STATEMENT(NODE *head){
                 
                 // statement
                 nextTokenNode = process_STATEMENT(nextTokenNode);
+                
+                nextTokenNode = getNextTokenNode(nextTokenNode); // skip
                 
                 while (m_nCurrentToken == semicolonsym) {
                     // gettoken
@@ -824,56 +821,59 @@ NODE *process_STATEMENT(NODE *head){
                 
                 break;
                 
-            case writesym:
+            case writesym: // done
                 // generate
                 // gettoken
                 nextTokenNode = getNextTokenNode(nextTokenNode);
                 if (m_nCurrentToken == identsym) {
+                    nRecordFoundIndex = 0;
                     
-                    // check if variable exist or not, if it does not exit, error11
-                    //printf("token at line 783 %s\n", nextTokenNode->token );
-                    if ( existVar(nextTokenNode->token) ){
-                        // create code for LOD, 0, var address M // code for variable
-                        // create code for SIO 0 0
-                    } else if ( existConst(nextTokenNode->token) ) {
-                        // create code for LIT, 0, constant address M //code for constant
-                        // create code for SIO 0 0
-                    } else {
-                        // undeclared constant or variable
-                        printError(err11, "791 ");
+                    // check if variable exist already as variable, constant
+                    if ( !((nRecordFoundIndex = existVar(nextTokenNode->token)) || (nRecordFoundIndex = existConst(nextTokenNode->token))) ){
+                        printError(err50, "836 ");
                     }
+                    nRecordFoundIndex -= 1; // fix the offset of 1, i + 1
+                    // get the record information
+                    if (namerecord_table[nRecordFoundIndex].kind == 1) { // constant
+                        enterCode(lit, 0, namerecord_table[nRecordFoundIndex].val);
+                    }
+                    if (namerecord_table[nRecordFoundIndex].kind == 2) { // variable
+                        enterCode(lod, 0, namerecord_table[nRecordFoundIndex].adr);
+                    }
+                    // enter new VM code for SIO
+                    enterCode(sio , 0, 0);
+                    
                     nextTokenNode = getNextTokenNode(nextTokenNode); // skip
                     nextTokenNode = getNextTokenNode(nextTokenNode); // after var or constant name
-                    //printf("token at line 795 %s token is %d\n", nextTokenNode->token, m_nCurrentToken );
-                    // if token <> " ; semicolonsym " error
-                    if (m_nCurrentToken != semicolonsym) {
-                        printError(err5, "798 ");
-                    }
                     
                     //nextTokenNode = getNextTokenNode(nextTokenNode);
                     // create code (print top of stack OP, 0, 1)
+                    break;
                 }
+                // token was not identifier
+                printError(err50, "858 ");
+                
                 break;
                 
-            case readsym:
-                
-                // create code (read_input OP, 0, 2)
+            case readsym: // done
+                //printf(" %s token ar line 859, value %d\n", nextTokenNode->token, m_nCurrentToken );
                 nextTokenNode = getNextTokenNode(nextTokenNode);
                 
                 // check if variable exist or not, if it does not exit, error11
-                //printf("token at line 813 %s\n", nextTokenNode->token );
-                if ( existVar(nextTokenNode->token) ){
-                    // create code for store, 0, var address M // code for variable
-                    
-                } else if ( existConst(nextTokenNode->token) ) {
-                    // error, you can not store values into constants
-                    printError(err12, "819 ");
-                } else {
-                    // undeclared  variable
-                    printError(err11, "831 ");
+                //printf(" %s token ar line 863, value %d \n", nextTokenNode->token, m_nCurrentToken );
+                if (m_nCurrentToken != identsym) {
+                    printError(err49, "865 ");
                 }
                 
-                
+                nRecordFoundIndex = 0;
+                if ( ! (nRecordFoundIndex = existVar(nextTokenNode->token)) ){
+                    printError(err12, "870 ");
+                    
+                }
+                // create a code line for VM read
+                enterCode(sio, 0, 1);
+                // create a code line for VM store
+                enterCode(sto, 0, namerecord_table[nRecordFoundIndex].adr);
                 
                 break;
                 
@@ -891,7 +891,7 @@ NODE *process_STATEMENT(NODE *head){
                 break;
         }
         
-        return nextTokenNode;
+        return nextTokenNode = getNextTokenNode(nextTokenNode);;
         
     }
     
@@ -903,26 +903,43 @@ NODE *process_STATEMENT(NODE *head){
     
 }
 
-NODE *process_EXPRESSION(NODE *head){
+NODE *process_EXPRESSION(NODE *head){ // done
     
+    int signOp = 0;
     NODE *nextTokenNode = NULL;
     nextTokenNode = head;
     
     if ( nextTokenNode != NULL){
         
         if ( (m_nCurrentToken == plussym) || (m_nCurrentToken == minussym) ) {
-            
+            // store the negative or possive mark
+            signOp = m_nCurrentToken;
             nextTokenNode = getNextTokenNode(nextTokenNode);
+            nextTokenNode = process_TERM(nextTokenNode);
+            if (signOp == minussym){
+                // create a code line for VM negation
+                enterCode(opr, 0, neg);
+            }
             
+            
+        } else {
+            
+            nextTokenNode = process_TERM(nextTokenNode);
         }
         
-        nextTokenNode = process_TERM(nextTokenNode);
-        
         while ( (m_nCurrentToken == plussym) || (m_nCurrentToken == minussym) ) {
+            signOp = m_nCurrentToken;
             
             nextTokenNode = getNextTokenNode(nextTokenNode);
             
             nextTokenNode = process_TERM(nextTokenNode);
+            if (signOp == minussym){
+                // create a code line for VM negation
+                enterCode(opr, 0, neg);
+            } else {
+                // create a code line for VM negation
+                enterCode(opr, 0, add);
+            }
         }
         
         return nextTokenNode;
@@ -934,7 +951,9 @@ NODE *process_EXPRESSION(NODE *head){
     return nextTokenNode;
 }
 
-NODE *process_TERM(NODE *head){
+NODE *process_TERM(NODE *head){ // done
+    
+    int nOp = 0;
     
     NODE *nextTokenNode = NULL;
     nextTokenNode = head;
@@ -944,10 +963,18 @@ NODE *process_TERM(NODE *head){
         nextTokenNode = process_FACTOR(nextTokenNode);
         
         while ( (m_nCurrentToken == multsym) || (m_nCurrentToken == slashsym) ) {
+            nOp = m_nCurrentToken;
             // get token
             nextTokenNode = getNextTokenNode(nextTokenNode);
             // factor
             nextTokenNode = process_FACTOR(nextTokenNode);
+            if (nOp == multsym){
+                // create a code line for VM negation
+                enterCode(opr, 0, mul);
+            } else {
+                // create a code line for VM negation
+                enterCode(opr, 0, div_);
+            }
         }
         // return
         return nextTokenNode;
@@ -962,6 +989,8 @@ NODE *process_TERM(NODE *head){
 
 NODE *process_FACTOR(NODE *head){
     
+    int nRecordFoundIndex = 0;
+    
     NODE *nextTokenNode = NULL;
     nextTokenNode = head;
     
@@ -972,7 +1001,7 @@ NODE *process_FACTOR(NODE *head){
             case INVALID_INT:
                 
                 // error reading the current token from getNextTokenNode
-                printError(err35, "863 ");
+                printError(err35, "1004 ");
                 break;
                 
             case identsym:
@@ -980,9 +1009,8 @@ NODE *process_FACTOR(NODE *head){
                 
                 // check if variable exist or not, if it does not exit, error11
                 
-                printf("%s \n", nextTokenNode->token);
-                if ( ! existVar(nextTokenNode->token) ){
-                    printError(err11, "line 866 ");
+                if (  !(( nRecordFoundIndex = existVar(nextTokenNode->token)) || (nRecordFoundIndex = existConst(nextTokenNode->token)) )){
+                    printError(err11, "line 1013 ");
                 }
                 nextTokenNode = getNextTokenNode(nextTokenNode); // skip
                 
@@ -1139,7 +1167,7 @@ void printError(int ErrorNumber, char *strToken){
     // when you are done with it
     //if(gListHead != NULL) { FreeMemoryAllocFront_to_Tail(gListHead); gListHead = NULL;}
     
-    exit(EXIT_FAILURE);
+    exit(1);
     return;
     
 }
