@@ -105,6 +105,7 @@ int existVar(char varName[]);
 int existConst(char constName[]);
 int existProc(char procName[]);
 int enterCode(int OPcode, int Lval, int Mval);
+void enterNamerecord_table(int nKind, char caName[], int nVal, int nLevel, int nAdr );
 
 
 
@@ -1107,18 +1108,19 @@ void initializeNamerecord_table(){
 void enterNamerecord_table(int nKind, char caName[], int nVal, int nLevel, int nAdr ){
     
     
-    namerecord_table[i].kind = 0;           // constant = 1; var = 2, proc = 3
+    namerecord_table[m_nNameRecordCount].kind = nKind;           // constant = 1; var = 2, proc = 3
     if ( strcpy(namerecord_table[i].name, caName) == NULL) {
         printError(err33, "Namerecord_table");
         //printf("Error: fail creating space to store token string\n");
         exit(EXIT_FAILURE);
-    };                                  // name up to 11 characters long, 11 + 1 for \0
-    namerecord_table[i].val = 0;            // number (ASCII value)
-    namerecord_table[i].level = 0;          // L level
-    namerecord_table[i].adr = 0;            // M address
-}
-return;
-
+    };                                                          // name up to 11 characters long, 11 + 1 for \0
+    namerecord_table[m_nNameRecordCount].val = nVal;            // number (ASCII value)
+    namerecord_table[m_nNameRecordCount].level = nLevel;        // L level
+    namerecord_table[m_nNameRecordCount].adr = nAdr;            // M address
+    m_nNameRecordCount;
+    
+    return;
+    
 }
 
 // ------------------end of analyze tokens ---------------------------
