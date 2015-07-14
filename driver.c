@@ -48,28 +48,28 @@ int main(int argc, char* argv[])
     }
     
     if (printLexemeScanner) {
-        PrintArgv[0] = "gcc -o scanner scanner.c && ./scanner -l";// print lexeme
+        system("gcc -o scanner scanner.c && ./scanner -l");
+        //PrintArgv[0] = "gcc -o scanner scanner.c && ./scanner -l";// print
+    } else {
+        system("gcc -o scanner scanner.c && ./scanner");
     }
     
-    PrintArgv[0] = "gcc -o scanner scanner.c && ./scanner"; // dont print lexeme
+    
     
     if ( printParserCode ) {
-        PrintArgv[1] = "gcc -o parser parser.c && ./parser -a";// print lexeme
+        system("gcc -o parser parser.c && ./parser -a");  // print lexeme
+    } else {
+        system("gcc -o parser parser.c && ./parser");
     }
     
-    PrintArgv[1] = "gcc -o parser parser.c && ./parser"; // dont print lexeme
+    
     
     if (printVMStack ) {
-        PrintArgv[2] = "gcc -o vm vm.c && ./vm - v"; // print stackt trace
+        system("gcc -o vm vm.c && ./vm - v"); // print stack
+        
+    } else {
+        system("gcc -o vm vm.c && ./vm");
     }
-    PrintArgv[2] = "gcc -o vm vm.c && ./vm"; // dont print stackt trace
-    
-    system(PrintArgv[0]);	// -l
-    //system(PrintArgv[1]);	// -a
-    system(PrintArgv[2]); 	// -v
-    return 0;
-    
-    
     
     return 0;
     

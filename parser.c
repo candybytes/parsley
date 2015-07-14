@@ -29,12 +29,16 @@ int m_nVariableStackAdrx = 4;           // variables start of address of first A
 int m_nAR_Level = 0;                    // Activation Record first Level = 0;
 struct NODE *gListHead = NULL;          // global list head in case of error printing, free malloc from this pointer
 #define MAX_CODE_LENGTH 500             // max amount of tokenized instructions
+int OTC = 0;
 
 int m_nVarCount = 0;
 int m_nConstCount = 0;
 int m_nProcCount = 0;
 int strsAreEqual(char * stt1, char *str2);
 void initializeNamerecord_table();
+
+void printCodeLinesTOFILE();
+void printCodeLines();
 
 /*
  struct instructions {
@@ -93,11 +97,13 @@ NODE *process_TERM(NODE *head);
 NODE *process_FACTOR(NODE *head);
 NODE *process_CONDITION(NODE *head);
 
+
 int existVar(char varName[]);
 int existConst(char constName[]);
 int existProc(char procName[]);
 void enterCode(int OPcode, int Lval, int Mval);
 void enterNamerecord_table(int nKind, char caName[], int nVal, int nLevel, int nAdr );
+void printCodeLines();
 
 
 
@@ -116,7 +122,10 @@ int main(int argc, char *argv[]) {
         printError(err35, " ");
         
     }
-    
+    if(argc > 1) {
+        OTC = strsAreEqual(argv[1], "-a");
+        
+    }
     
     
     // create a new ListHead
@@ -139,19 +148,11 @@ int main(int argc, char *argv[]) {
     // close the input file
     fclose(ifp);
     // ----------test print ------------- //
-    //printf("%d tokens \n", m_n_inputTokens);
     
-    
-    NODE *temp = NULL;
-    temp = gListHead; // using global linkedlist pointer to head of list
-    for (i =0; i < m_n_inputTokens; i++) {
-        ////printf("token %s\n", temp->token);
-        temp =  temp->next != NULL ? temp->next : temp;
-        
-    }
     // ----------test print ------------- //
     
     // call to analyse tokens -- parser
+    NODE *temp = NULL;
     temp = ListHead;
     procedure_PROGRAM(temp);
     
@@ -162,9 +163,9 @@ int main(int argc, char *argv[]) {
     if(gListHead != NULL) { FreeMemoryAllocFront_to_Tail(gListHead); gListHead = NULL;}
     //if(ListHead != NULL) { FreeMemoryAllocFront_to_Tail(ListHead); ListHead = NULL;}
     
-    // close the input file
-    //fclose(ifp);
-    
+    if (OTC) {
+        printCodeLines();
+    }
     
     return 0;
 }
@@ -1197,8 +1198,8 @@ void printError(int ErrorNumber, char *strToken){
     // print the error message given an error number from g_caErrorMsgs[] char* array
     if (ErrorNumber <= MAX_ERROR) {
         // to find error string, substract offset of 1
-        printf("Error %d\n", ErrorNumber);
-        //printf("Error %d, %s\n", ErrorNumber, g_caErrorMsgs[ErrorNumber - 1]);
+        
+        printf("Error %d, %s\n", ErrorNumber, g_caErrorMsgs[ErrorNumber - 1]);
         //printf("%s\n", strToken);
         return;
     }
@@ -1213,8 +1214,28 @@ void printError(int ErrorNumber, char *strToken){
 
 
 
+void printCodeLines(){
+    int i = 0;
+    printf("VM Code Lines mcode.txt\n");
+    for (i = 0; i < m_nCodeLineCount; i++) {
+        printf("%3d%3d%3d\n", codeLines[i].OP, codeLines[i].L, codeLines[i].M);
+    }
+    
+}
 
-
+void printCodeLinesTOFILE(){
+    
+    FILE * fp = NULL;
+    fp = fopen("mcode.txt","w");
+    int i = 0;
+    for (i = 0; i < m_nCodeLineCount; i++) {
+        fprintf(fp,"3%d3%d3%d\n", codeLines[i].OP, codeLines[i].L, codeLines[i].M);
+    }
+    fprintf(fp,"\n");
+    // close the file
+    fclose(fp);
+    
+}
 
 
 
