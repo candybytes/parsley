@@ -105,7 +105,7 @@ int m_naWsym[] = { nulsym, beginsym, callsym, constsym, dosym, elsesym, endsym, 
 // special punctuation symbols
 char m_caSpecialSymbols[] = {'(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>'};
 
- // special punctuation symbols enumerator values
+// special punctuation symbols enumerator values
 int m_naSpecialSymbols[] = {lparentsym, rparentsym, multsym, plussym, commasym, minussym, periodsym, slashsym,  becomessym,  semicolonsym, lessym, eqlsym, gtrsym};
 
 // special punctuation ascii values
@@ -198,9 +198,12 @@ char *g_caErrorMsgs[MAX_ERROR] = {
     "a variable or constant or procedure already exist under that variable name", // 46
     "a variable or constant or procedure already exist under that procedure name", // 47
     "Undeclared procedure.",//48
-
-
-
+    "missing identifier after read.",//49
+    "missing identifier or constant after write."//50
+    
+    
+    
+    
     
 };
 

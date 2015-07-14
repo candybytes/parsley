@@ -12,8 +12,6 @@
  *  Copyright (c) 2015 ROBERT VALLADARES and DANISH WAHEED. All rights reserved.
  */
 
-// ________________________________-line 672 identsym needs to check
-//---------------------------------for const exist too
 
 // Library declarations
 #include <stdio.h>

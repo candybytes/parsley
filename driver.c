@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
     
     
     if (printVMStack ) {
-        system("gcc -o vm vm.c && ./vm - v"); // print stack
+        system("gcc -o vm vm.c && ./vm -v"); // print stack
         
     } else {
         system("gcc -o vm vm.c && ./vm");
