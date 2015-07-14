@@ -1108,7 +1108,14 @@ void initializeNamerecord_table(){
 
 // ------------------code processing ------------------------
 
-int enterCode(int OPcode, int Lval, int Mval){
+void enterCode(int nOPcode, int nLcode, int nMcode){
+    
+    // store the values into struct array
+    code[m_nCodeLineCount].OP = nOPcode;
+    code[m_nCodeLineCount].L = nLcode;
+    code[m_nCodeLineCount].M = nMcode;
+    
+    m_nCodeLineCount++;
     
     return 0;
 }
