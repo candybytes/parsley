@@ -30,13 +30,6 @@ int m_nAR_Level = 0;                    // Activation Record first Level = 0;
 struct NODE *gListHead = NULL;          // global list head in case of error printing, free malloc from this pointer
 #define MAX_CODE_LENGTH 500             // max amount of tokenized instructions
 
-typedef char * string;
-// character array of 100 = MAX_VARS_CONST_PROC
-string m_caVariables[MAX_VARS_CONST_PROC];
-// character array of 100 = MAX_VARS_CONST_PROC
-string m_caConstants[MAX_VARS_CONST_PROC];
-// character array of 100 = MAX_VARS_CONST_PROC
-string m_caProcedures[MAX_VARS_CONST_PROC];
 int m_nVarCount = 0;
 int m_nConstCount = 0;
 int m_nProcCount = 0;
@@ -78,7 +71,6 @@ int m_nNameRecordCount = 0;                             // index for ARs token a
 
 //--------------------local data structures ---------------
 
-string str[100]; //make 100 strings
 
 typedef struct NODE{
     char token[MAX_VAR_LEN + 1];
@@ -100,8 +92,7 @@ NODE *process_EXPRESSION(NODE *head);
 NODE *process_TERM(NODE *head);
 NODE *process_FACTOR(NODE *head);
 NODE *process_CONDITION(NODE *head);
-void free_VAR_CONST_PROCS();
-void printVAR_CONST_PROCS();
+
 int existVar(char varName[]);
 int existConst(char constName[]);
 int existProc(char procName[]);
@@ -151,9 +142,6 @@ int main(int argc, char *argv[]) {
     printf("%d tokens \n", m_n_inputTokens);
     
     
-    free_VAR_CONST_PROCS();
-    
-    
     NODE *temp = NULL;
     temp = gListHead; // using global linkedlist pointer to head of list
     for (i =0; i < m_n_inputTokens; i++) {
@@ -181,12 +169,6 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void printVAR_CONST_PROCS(){
-    int i = 0;
-    for (i = 0; i < 100; i++) {
-        //printf("%d %s %s %s\n", i, m_caConstants[i], m_caVariables[i], m_caProcedures[i]);
-    }
-}
 
 //-----------------start -- read tokens in --------------------------
 
@@ -292,27 +274,6 @@ void FreeMemoryAllocFront_to_Tail(NODE *head){
 }
 
 
-void free_VAR_CONST_PROCS(){
-    
-    
-    
-    int i = 0;
-    for (i = 0; i < m_nVarCount; i++) {
-        
-        free(m_caVariables[i]);
-    }
-    
-    for (i = 0; i < m_nConstCount; i++) {
-        
-        free(m_caConstants[i]);
-    }
-    
-    for (i = 0; i < m_nProcCount; i++) {
-        
-        free(m_caProcedures[i]);
-    }
-    
-}
 
 
 //-----------------end -- read tokens in -------------------------------
@@ -421,15 +382,7 @@ int existVar(char varName[]){
         }
         
     }
-    /*
-     for (i = 0; i < m_nVarCount; i++) {
-     
-     if ( strsAreEqual(m_caVariables[i], varName) ) {
-     return 1;
-     }
-     
-     }
-     */
+    
     
     return 0;
 }
@@ -446,15 +399,6 @@ int existConst(char constName[]){
         
     }
     
-    /*
-     for (i = 0; i < m_nConstCount; i++) {
-     
-     if ( strsAreEqual(m_caConstants[i], constName) ) {
-     return 1;
-     }
-     
-     }
-     */
     
     return 0;
 }
@@ -471,16 +415,6 @@ int existProc(char procName[]){
         
     }
     
-    /*
-     for (i = 0; i < m_nProcCount; i++) {
-     
-     if ( strsAreEqual(m_caProcedures[i], procName)) {
-     return 1;
-     }
-     
-     }
-     */
-    
     return 0;
 }
 
@@ -492,22 +426,18 @@ int strsAreEqual(char * stt1, char *str2){
 
 NODE *const_decl(NODE *head){
     
-    char cIdent[MAX_STR + 1] = " ";
-    int nNumber = 0;
-    int nConstant = 0;
+    
     NODE *nextTokenNode = NULL;
     nextTokenNode = head;
+    
     namerecord_t singleNamerecord;  // single Var, Const or Proc record
     
     if ( nextTokenNode != NULL){
-        // token = 28 (constant)
-        nConstant = m_nCurrentToken;
         
         do {
             // " 28 2 m 9 3 7 " is translated as "const m = 7 "
             
             // token = 28 (constant declaration)
-            
             
             // update the current token value and get the node pointer to next token
             nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -518,17 +448,19 @@ NODE *const_decl(NODE *head){
             
             // token = m
             // store the variable name, and go to next token after string variable
-            //strncpy(cIdent, nextTokenNode->token, MAX_STR + 1);
+            
             // check if constant exist already as variable, constant or procedure
             if ( existVar(nextTokenNode->token) || existConst(nextTokenNode->token) || existProc(nextTokenNode->token) ){
                 // error constant already declared as a variable or procedure name
                 printError(err45, "458 ");
             }
             
+            // copy the name of the constant
+            printf(" 530 %s\n", nextTokenNode->token );
+            strcpy(singleNamerecord.name, nextTokenNode->token);
+            // set the type of the constant
+            singleNamerecord.kind = lexConstant;
             
-            
-            m_caConstants[m_nConstCount] = malloc((MAX_STR + 1) * sizeof(char));
-            strncpy(m_caConstants[m_nConstCount++], nextTokenNode->token, MAX_STR + 1);
             // just call nexttokennode and skip the variable string return integer (garbage)
             // token has garbage
             nextTokenNode = getNextTokenNode(nextTokenNode); // skip
@@ -549,12 +481,18 @@ NODE *const_decl(NODE *head){
             
             
             nextTokenNode = getNextTokenNode(nextTokenNode);
-            nNumber = m_nCurrentToken;
+            // set the value of the constant
+            singleNamerecord.val = m_nCurrentToken;
+            // set the address of the constant
+            singleNamerecord.adr = -1;
+            // set the lelvel of the constant
+            singleNamerecord.level = m_nAR_Level;
             
+            // store the created single Name record into the array
+            namerecord_table[m_nNameRecordCount++] = singleNamerecord;
+            m_nConstCount++;
             
-            printf("constant 493::  %d, %s, %d\n", nConstant, m_caConstants[m_nConstCount-1], nNumber);
-            // TO-DO. Create method ENTER or some other method that processes the Values
-            //ENTER(constant, ident, number);
+            printf("constant 493::  %d, %s, %d\n", singleNamerecord.kind, singleNamerecord.name, singleNamerecord.val);
             
             // token could be coma or semicolon , ;
             nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -575,7 +513,7 @@ NODE *const_decl(NODE *head){
 
 NODE *var_decl(NODE *head){
     
-    char cIdent[MAX_STR + 1] = " ";
+    namerecord_t singleNamerecord;  // single Var, Const or Proc record
     
     NODE *nextTokenNode = NULL;
     nextTokenNode = head;
@@ -600,20 +538,34 @@ NODE *var_decl(NODE *head){
             }
             
             // store the variable name, and go to next token after string variable
-            //m_caVariables[m_nVarCount++] = cIdent;
-            //strncpy(cIdent, nextTokenNode->token, MAX_STR + 1);
             // check if variable exist already as variable, constant or procedure
             
             if ( existVar(nextTokenNode->token) || existConst(nextTokenNode->token) || existProc(nextTokenNode->token) ){
                 // error constant already declared as a variable or procedure name
                 printError(err46, "541 ");
             }
-            m_caVariables[m_nVarCount] = malloc((MAX_STR + 1) * sizeof(char));
-            strncpy(m_caVariables[m_nVarCount++], nextTokenNode->token, MAX_STR + 1);
+            
+            // copy the name of the variable
+            strcpy(singleNamerecord.name, nextTokenNode->token);
+            // set the type of the record
+            singleNamerecord.kind = lexVar;
+            
+            
             // just call nexttokennode and skip the variable string return integer (garbage)
             // token has garbage
             
             nextTokenNode = getNextTokenNode(nextTokenNode); // skip
+            
+            
+            // set the value of the variable
+            singleNamerecord.val = 0;
+            // set the address of the constant
+            singleNamerecord.adr = 4 + m_nVarCount++;
+            // set the lelvel of the constant
+            singleNamerecord.level = m_nAR_Level;
+            
+            // store the created single Name record into the array
+            namerecord_table[m_nNameRecordCount++] = singleNamerecord;
             
             
             
@@ -622,7 +574,7 @@ NODE *var_decl(NODE *head){
             
             // TO-DO. Create method ENTER or some other method that processes the Values
             //ENTER(m_nVariableStackAdrx, cIdent, m_nAR_Level);
-            printf("variable 563 :: %d, %s, %d\n", m_nVariableStackAdrx, m_caVariables[m_nVarCount - 1], m_nAR_Level);
+            printf("variable 563 :: %d, %s, %d\n", singleNamerecord.adr, singleNamerecord.name, singleNamerecord.level);
             m_nVariableStackAdrx++;
             
         } while (m_nCurrentToken == commasym );
@@ -642,7 +594,7 @@ NODE *var_decl(NODE *head){
 
 NODE *proc_decl(NODE *head){
     
-    char cProcedure[MAX_STR + 1] = " ";
+    namerecord_t singleNamerecord;  // single Var, Const or Proc record
     
     NODE *nextTokenNode = NULL;
     nextTokenNode = head;
@@ -661,16 +613,27 @@ NODE *proc_decl(NODE *head){
                 printError(err47, "593 ");
             }
             
-            // store the procedure name, and go to next token
-            //strncpy(cProcedure, nextTokenNode->token, MAX_STR + 1);
-            m_caProcedures[m_nProcCount] = malloc((MAX_STR + 1) * sizeof(char));
-            strncpy(m_caProcedures[m_nProcCount++], nextTokenNode->token, MAX_STR + 1);
+            // copy the name of the procedure
+            strcpy(singleNamerecord.name, nextTokenNode->token);
+            // set the type of the record
+            singleNamerecord.kind = lexProc;
+            
             // just call nexttokennode and skip the variable string return integer (garbage)
             // token has garbage
             
             nextTokenNode = getNextTokenNode(nextTokenNode); // skip
             
-            printf("procedure 611:: %d, %s\n", procsym, m_caProcedures[m_nProcCount - 1]);
+            // set the value of the procedure
+            singleNamerecord.val = 0;
+            // set the address of the constant
+            singleNamerecord.adr = 0;
+            // set the lelvel of the constant
+            singleNamerecord.level = m_nAR_Level;
+            
+            // store the created single Name record into the array
+            namerecord_table[m_nNameRecordCount++] = singleNamerecord;
+            
+            printf("procedure 611:: %d, %s\n", singleNamerecord.kind, singleNamerecord.name);
             //ENTER(procedure, ident);
             
             nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -680,6 +643,7 @@ NODE *proc_decl(NODE *head){
             
             // get next token, increase the L level, call block procedure again
             nextTokenNode = getNextTokenNode(nextTokenNode);
+            m_nProcCount++;
             m_nAR_Level++;
             m_nVariableStackAdrx += 3; // increase the variables starting address
             // ** when increasing the AR level, you must also increase the stack space
@@ -1155,7 +1119,7 @@ void printError(int ErrorNumber, char *strToken){
     // clean up after using the read tokens, you need to free the calloc spaced
     // when you are done with it
     //if(gListHead != NULL) { FreeMemoryAllocFront_to_Tail(gListHead); gListHead = NULL;}
-    //free_VAR_CONST_PROCS();
+    
     exit(EXIT_FAILURE);
     return;
     
