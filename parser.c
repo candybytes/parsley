@@ -62,13 +62,17 @@ void initializeNamerecord_table();
  
  } namerecord_t;
  
+ typedef enum {lit = 1,opr,lod,sto,cal,inc,jmp,jpc,sio} eOPCODE;
+ typedef enum {ret, neg, add, sub, mul, div_, odd, mod, eql, neq, lss, leq, gtr, geq} eSTACKOPS; // div is reserved word
+ typedef enum {lexConstant = 1, lexVar, lexProc} eLexemeKind;
+ 
  */
 // there will be at most m_nCleanCount separate namerecord_t tokens
 namerecord_t namerecord_table[MAX_CODE_LENGTH];  // ARs token array
 struct instructions codeLines[MAX_CODE_LENGTH];         // instructions array
 struct instructions IR;                                 // single instruction
-int m_nCodeLineIndex = 0;                               // index for code line genetator
-int m_nNameRecordIndex = 0;                             // index for ARs token array
+int m_nCodeLineCount = 0;                               // index for code line genetator
+int m_nNameRecordCount = 0;                             // index for ARs token array
 
 
 //--------------------local data structures ---------------
@@ -100,7 +104,7 @@ void printVAR_CONST_PROCS();
 int existVar(char varName[]);
 int existConst(char constName[]);
 int existProc(char procName[]);
-int enterCode();
+int enterCode(int OPcode, int Lval, int Mval);
 
 
 
@@ -336,6 +340,9 @@ void procedure_PROGRAM(NODE *head){
         if (m_nCurrentToken != periodsym) {
             printError(err9, NULL);
         }
+        // generate the last line of code for the vm, HALT vm program
+        enterCode(sio, 0, 2);
+        
         return;
     }
     
@@ -374,35 +381,23 @@ NODE *process_Block(NODE *head){
     // is current token a valid token?
     if (m_nCurrentToken != INVALID_INT || nextTokenNode != NULL) {
         
-        
-        
         if (m_nCurrentToken == constsym){
-            //--------------NEED TO ADD ENTER METHOD ------------------
-            // token is of kind constant constsym = 28
-            // if token = "const" then CONST-DECL();
-            //printf("\nCalling constant declaration\n");
+            // token constant declaration constsym = 28
             nextTokenNode = const_decl(nextTokenNode);
-            //printf("\nreturning from constant declaration\n");
         }
         
         if (m_nCurrentToken == varsym){
-            // token is of kind variable = 29
-            //printf("\nCalling  variable declaration\n");
+            // token is variable declaration = 29
             nextTokenNode = var_decl(nextTokenNode);
-            //printf("\nreturning from variable declaration\n");
         }
         
         if (m_nCurrentToken == procsym){
-            // token is of kind Procedure = 30
-            //printf("\nCalling  procedure declaration\n");
+            // token Procedure declaration = 30
             nextTokenNode = proc_decl(nextTokenNode);
-            //printf("\nreturning from procedure declaration\n");
         }
         
-        
-        //printf("\nCalling statement\n\n");
         nextTokenNode = process_STATEMENT(nextTokenNode);
-        //printf("\nreturning from statement\n");
+
         return nextTokenNode;
         
     }
@@ -410,7 +405,6 @@ NODE *process_Block(NODE *head){
     // error reading the current token from getNextTokenNode
     printError(err35, "367 ");
     return nextTokenNode;
-    
     
 }
 
@@ -421,6 +415,14 @@ int existVar(char varName[]){
     
     int i = 0;
     
+    for (i = 0; i < m_nNameRecordCount; i++) {
+        
+        if ( strsAreEqual(namerecord_table[i].name, varName) & namerecord_table[i].kind = lexVar ) {
+            return 1;
+        }
+        
+    }
+    /*
     for (i = 0; i < m_nVarCount; i++) {
         
         if ( strsAreEqual(m_caVariables[i], varName) ) {
@@ -428,6 +430,7 @@ int existVar(char varName[]){
         }
         
     }
+     */
     
     return 0;
 }
@@ -436,6 +439,15 @@ int existConst(char constName[]){
     
     int i = 0;
     
+    for (i = 0; i < m_nNameRecordCount; i++) {
+        
+        if ( strsAreEqual(namerecord_table[i].name, varName) & namerecord_table[i].kind = lexConstant ) {
+            return 1;
+        }
+        
+    }
+    
+    /*
     for (i = 0; i < m_nConstCount; i++) {
         
         if ( strsAreEqual(m_caConstants[i], constName) ) {
@@ -443,6 +455,7 @@ int existConst(char constName[]){
         }
         
     }
+     */
 
     return 0;
 }
@@ -451,6 +464,15 @@ int existProc(char procName[]){
     
     int i = 0;
     
+    for (i = 0; i < m_nNameRecordCount; i++) {
+        
+        if ( strsAreEqual(namerecord_table[i].name, varName) & namerecord_table[i].kind = lexProc ) {
+            return 1;
+        }
+        
+    }
+    
+    /*
     for (i = 0; i < m_nProcCount; i++) {
         
         if ( strsAreEqual(m_caProcedures[i], procName)) {
@@ -458,6 +480,7 @@ int existProc(char procName[]){
         }
         
     }
+     */
     
     return 0;
 }
@@ -483,8 +506,8 @@ NODE *const_decl(NODE *head){
         do {
             // " 28 2 m 9 3 7 " is translated as "const m = 7 "
             
-            // token = 28 (constant)
-            //nConstant = m_nCurrentToken;
+            // token = 28 (constant declaration)
+
             
             // update the current token value and get the node pointer to next token
             nextTokenNode = getNextTokenNode(nextTokenNode);
@@ -501,6 +524,7 @@ NODE *const_decl(NODE *head){
                 // error constant already declared as a variable or procedure name
                 printError(err45, "458 ");
             }
+            
             
             
             m_caConstants[m_nConstCount] = malloc((MAX_STR + 1) * sizeof(char));
@@ -1081,6 +1105,13 @@ void initializeNamerecord_table(){
 }
 
 // ------------------end of analyze tokens ---------------------------
+
+// ------------------code processing ------------------------
+
+int enterCode(int OPcode, int Lval, int Mval){
+    
+    return 0;
+}
 
 
 /*
