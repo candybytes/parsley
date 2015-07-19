@@ -45,7 +45,7 @@ int m_nCleanInputTokens = 0;                // global variable to track count of
 #define MAX_WORDS 15                        // define the number of reserved words
 #define INVALID_INT 2147483647              // define the long_max int value in case number string is invalid
 #define MAX_VAR_LEN 11                      // defines the masx length of a normal variable
-#define MAX_ERROR 50                        // defines the max amount of error messages
+#define MAX_ERROR 52                        // defines the max amount of error messages
 #define MAX_ASCII 128                       // defines the max amount of ascii characters
 #define MAX_VARS_CONST_PROC 100             // defines the max amount of each variables, constants and procedures individually, 100, 100, 100
 
@@ -78,6 +78,10 @@ typedef enum {
     periodsym, becomessym, beginsym, endsym, ifsym, thensym,
     whilesym, dosym, callsym, constsym, varsym, procsym,
     writesym, readsym, elsesym } token_type;
+
+
+// typedef enum {ret, neg, add, sub, mul, div_, odd, mod, eql, neq, lss, leq, gtr, geq} eSTACKOPS; // div is
+int g_naArithOPLookup[] = {0,0,0,0, add, sub, mul, div_, odd, eql, neq, lss, leq, gtr, geq };
 
 typedef enum {lexConstant = 1, lexVar, lexProc} eLexemeKind;
 
@@ -143,7 +147,7 @@ typedef enum {
     err31, err32, err33, err34, err35, err36,
     err37, err38, err39, err40, err41, err42,
     err43, err44, err45, err46, err47, err48,
-    err49, err50
+    err49, err50, err51, err52
     
 } g_eErrorMsgs;
 
@@ -199,11 +203,9 @@ char *g_caErrorMsgs[MAX_ERROR] = {
     "a variable or constant or procedure already exist under that procedure name", // 47
     "Undeclared procedure.",//48
     "missing identifier after read.",//49
-    "missing identifier or constant after write."//50
-    
-    
-    
-    
+    "missing identifier or constant after write.",//50
+    "undeclared identifier or constant after write.",//51
+    "Illegal constant declaration."//52
     
 };
 

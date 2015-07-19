@@ -40,31 +40,6 @@ int m_nVarCount = 0;                        // keep track of how many variables 
 int m_nConstCount = 0;                      // keep track of how many constants are declared
 int m_nProcCount = 0;                       // keep track of how many procedure are declared
 
-
-/*
- struct instructions {
-	int OP; // OP_code
-	int L;	// L_code
-	int M;	// M_code
- };
- 
- //structure of the symbol table record
- typedef struct {
- 
- int TokenType;                  // token type
- int kind;                       // constant = 1; var = 2, proc = 3
- char name[MAX_VAR_LEN + 1];     // name up to 11 characters long, 11 + 1 for \0
- int val;                        // number (ASCII value)
- int level;                      // L level
- int adr;                        // M address
- 
- } namerecord_t;
- 
- typedef enum {lit = 1,opr,lod,sto,cal,inc,jmp,jpc,sio} eOPCODE;
- typedef enum {ret, neg, add, sub, mul, div_, odd, mod, eql, neq, lss, leq, gtr, geq} eSTACKOPS; // div is reserved word
- typedef enum {lexConstant = 1, lexVar, lexProc} eLexemeKind;
- 
- */
 // there will be at most m_nCleanCount separate namerecord_t tokens
 namerecord_t namerecord_table[MAX_CODE_LENGTH];         // ARs token array
 namerecord_t table;                                   // ARs token array pointer -------------***********
@@ -155,14 +130,6 @@ int main(int argc, char *argv[]) {
     
     // close the input file
     fclose(ifp);
-    /*/// ----------test print ------------- //
-     
-     i = 0;
-     for (i = 0; i < m_n_inputTokens; i = m_nListIndex) {
-     getNextTokenNode();
-     }
-     
-     /*/// ----------test print ------------- //
     
     // call to analyse tokens -- parser
     procedure_PROGRAM();
@@ -173,7 +140,7 @@ int main(int argc, char *argv[]) {
     
     printf("\n\nNo errors, program is syntactically correct.\n\n");
     
-    printCodeLines();
+    printCodeLines(); // ----WARNING, REMOVE BEFORE SUBMITTING
     printCodeLinesTOFILE(); // always print code lines to file
     
     if (OTC) {
@@ -1051,7 +1018,7 @@ void printError(int ErrorNumber, char *strToken){
     if (ErrorNumber <= MAX_ERROR) {
         // to find error string, substract offset of 1
         
-        printf("Error %d, %s %s\n", ErrorNumber, g_caErrorMsgs[ErrorNumber - 1], strToken);
+        printf("Error %d, %s\n", ErrorNumber, g_caErrorMsgs[ErrorNumber - 1]);
         
     } else {
         printf("Error %d, Error # not defined\n", ErrorNumber);
