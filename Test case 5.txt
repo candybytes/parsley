@@ -1,0 +1,6 @@
+const a = 10;
+var a;
+begin
+	read a;
+	write b;
+end  write.
