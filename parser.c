@@ -142,22 +142,16 @@ int main(int argc, char *argv[]) {
     // all tokens no matter what, will be max length of 12
     char iToken[MAX_VAR_LEN + 1];  // One extra for nul char. //
     
-    
     while (fscanf(ifp, "%s", iToken) != EOF) {
-        // instead of //printf, just create a new node of linked list with string
+        //create a new node of linked list with string
         // or add them to a char * array, less code
-        //printf("read token %s\n", iToken);
         ListHead = InsertAtTail(ListHead, iToken);
-        
-        m_n_inputTokens++;
+        m_n_inputTokens++; // increase the count of token read in
         
     }
-    printf("input tokens %d\n",  m_n_inputTokens);
+    //printf("input tokens %d\n",  m_n_inputTokens);
     initializeNamerecord_table();
     initializeInstructions();
-    
-    //gFreeListHead = ListHead;
-    //gListHead = ListHead;
     
     // close the input file
     fclose(ifp);
@@ -171,18 +165,21 @@ int main(int argc, char *argv[]) {
      /*/// ----------test print ------------- //
     
     // call to analyse tokens -- parser
-    printf("calling the program \n");
     procedure_PROGRAM();
     
     // clean up after using the read tokens, you need to free the calloc space
     // when you are done with it
     if(gFreeListHead != NULL) { FreeMemoryAllocFront_to_Tail(gFreeListHead); gFreeListHead = NULL;}
     
+    printf("\n\nNo errors, program is syntactically correct.\n\n");
+    
+    printCodeLines();
+    printCodeLinesTOFILE(); // always print code lines to file
     
     if (OTC) {
         printCodeLines();
     }
-    printf("\n\nNo errors, program is syntactically correct.\n\n");
+    
     return 0;
 }
 
@@ -330,7 +327,7 @@ void getNextTokenNode(){
             m_nListIndex++;                 // indicate the linkedlist index
         }
         // test print
-        printf("token %3d, variable %12s constant %12d listIndex %d\n", m_nCurrentToken, m_cCurrentTokenStr,  m_nTokenConstant, m_nListIndex  );
+        //printf("token %3d, variable %12s constant %12d listIndex %d\n", m_nCurrentToken, m_cCurrentTokenStr,  m_nTokenConstant, m_nListIndex  );
         return;
         
     }
@@ -419,7 +416,7 @@ void const_decl(){
         namerecord_table[m_nNameRecordCount++] = singleNamerecord;
         m_nConstCount++;
         
-        printf("constant 426::  %d, %s, %d\n", singleNamerecord.kind, singleNamerecord.name, singleNamerecord.val);
+        //printf("constant 426::  %d, %s, %d\n", singleNamerecord.kind, singleNamerecord.name, singleNamerecord.val);
         
         // token could be coma or semicolon , ;
         getNextTokenNode();
@@ -468,6 +465,7 @@ void var_decl(){
         singleNamerecord.val = 0;
         // set the address of the constant
         singleNamerecord.adr = m_nVariableStackAdrx;// + m_nVarCount++; //4
+        m_nVarCount++;
         // set the lelvel of the constant
         singleNamerecord.level = m_nAR_Level;
         
@@ -476,7 +474,7 @@ void var_decl(){
         
         getNextTokenNode();
         
-        printf("variable 495 :: %d, %s, %d\n", singleNamerecord.adr, singleNamerecord.name, singleNamerecord.level);
+        //printf("variable 495 :: %d, %s, %d\n", singleNamerecord.adr, singleNamerecord.name, singleNamerecord.level);
         m_nVariableStackAdrx++;
         
     } while (m_nCurrentToken == commasym );
@@ -531,7 +529,7 @@ void proc_decl(){
         // store the created single Name record into the array
         namerecord_table[m_nNameRecordCount++] = singleNamerecord;
         
-        printf("procedure 549::kind %d, name %s addrx %d level %d\n", singleNamerecord.kind, singleNamerecord.name, singleNamerecord.adr, singleNamerecord.level);
+        //printf("procedure 549::kind %d, name %s addrx %d level %d\n", singleNamerecord.kind, singleNamerecord.name, singleNamerecord.adr, singleNamerecord.level);
         
         m_nVariableStackAdrx += 4; // increase the variables starting address
         
@@ -581,7 +579,7 @@ void process_STATEMENT(){
             }
             // fix the offset return from existVar i + 1;
             nRecordFoundIndex -= 1;
-            printf("variable %s address %d\n", namerecord_table[nRecordFoundIndex].name, namerecord_table[nRecordFoundIndex].adr);
+            //printf("variable %s address %d\n", namerecord_table[nRecordFoundIndex].name, namerecord_table[nRecordFoundIndex].adr);
             
             getNextTokenNode();
             // if token <> " := "   error
@@ -884,7 +882,42 @@ void process_FACTOR(){
 
 void process_CONDITION(){
     
+    int nOp = 0;
+    
+    if ( gListHead == NULL){
+        printError(err35, "892");
+        // always must return something
+        return;
+    }
+    
+    if (m_nCurrentToken == oddsym) {
+        
+        nOp = m_nCurrentToken;
+        // gettoken
+        getNextTokenNode();
+        // expression
+        process_EXPRESSION();
+        
+        enterCode(opr, 0, odd);
+        
+    } else {
+        // expression
+        process_EXPRESSION();
+        // if token <> relation, error
+        if ( (m_nCurrentToken < eqlsym) || (m_nCurrentToken > geqsym) ){
+            printError(err20, " ");
+        }
+        nOp = m_nCurrentToken;
+        // gettoken
+        getNextTokenNode();
+        // expression
+        process_EXPRESSION();
+        // look up and enter what op code for equalities will be use by the VM
+        enterCode(opr, 0, g_naArithOPLookup[nOp]);
+    }
+    
     return;
+    
 }
 
 void initializeInstructions(){
@@ -1000,7 +1033,7 @@ void printCodeLinesTOFILE(){
     fp = fopen("mcode.txt","w");
     int i = 0;
     for (i = 0; i < m_nCodeLineCount; i++) {
-        fprintf(fp,"3%d3%d3%d\n", codeLines[i].OP, codeLines[i].L, codeLines[i].M);
+        fprintf(fp,"%3d%3d%3d\n", codeLines[i].OP, codeLines[i].L, codeLines[i].M);
     }
     fprintf(fp,"\n");
     // close the file
