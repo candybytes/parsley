@@ -713,6 +713,30 @@ void process_STATEMENT(){
             }
             
             break;
+            
+        case readsym:
+            
+            getNextTokenNode();
+            
+            if (m_nCurrentToken != identsym) {
+                printError(err49, "722");
+            }
+            
+            nRecordFoundIndex = 0;
+            if ( ! (nRecordFoundIndex = existVar(m_cCurrentTokenStr)) ){
+                printError(err12, "870 ");
+                
+            }
+            nRecordFoundIndex -= 1; // reset the offset from existVar return i + 1
+            // create a code line for VM read
+            enterCode(sio, 0, 1);
+            // create a code line for VM store
+            enterCode(sto, 0, namerecord_table[nRecordFoundIndex].adr);
+            
+            getNextTokenNode();
+            
+            break;
+            
     } // end switch
     
     
@@ -756,15 +780,6 @@ void process_EXPRESSION(){
         process_TERM(); // TERM
         enterCode(opr, 0, g_naArithOPLookup[nOp]);
         
-        /*
-         if (nOp == minussym){
-         // create a code line for VM negation
-         enterCode(opr, 0, sub);
-         } else {
-         // create a code line for VM negation
-         enterCode(opr, 0, add);
-         }
-         */
     }
     
     return;
@@ -793,15 +808,7 @@ void process_TERM(){
         process_FACTOR(); // FACTOR
         
         enterCode(opr, 0, g_naArithOPLookup[nOp]);
-        /*
-         if (nOp == multsym){
-         // create a code line for VM negation
-         enterCode(opr, 0, mul);
-         } else {
-         // create a code line for VM negation
-         enterCode(opr, 0, div_);
-         }
-         */
+        
     }
     // return to TERM caller
     return;
