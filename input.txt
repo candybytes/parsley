@@ -1,2 +1,9 @@
-var x, y;begin 
-  y := 3; /* This is a comment */  x := y + 56;end.
+var a, b, max;
+begin
+	read a;
+	read b;
+	max := b;
+	if a > b then max := a;
+	write max;
+end .
+
