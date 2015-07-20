@@ -96,8 +96,8 @@ int main(int argc, char *argv[]) {
         OTC = strsAreEqual(argv[1], "-v");
         
     }
-    printf("Adjust line 100, remove it, after testing\n");
-    OTC = 1;  //
+
+   
     filename = IFS;
     
     // read the input from file
@@ -120,8 +120,8 @@ int main(int argc, char *argv[]) {
     int x = 0; int y = 0;
     // declare a reg[bp][sp] array
     // initialize array to 0's
-    int bpsp[500][2];
-    for (x = 0; x < 500; x++){
+    int bpsp[codeCount][2];
+    for (x = 0; x < codeCount; x++){
         for (y = 0; y < 2; y++){
             bpsp[x][y] = 0;
         }
