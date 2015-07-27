@@ -25,7 +25,7 @@
 
 #define MAX_STACK_HEIGHT 2000
 #define MAX_CODE_LENGTH 500
-#define MAX_LEXI_LEVELS 3
+#define MAX_LEXI_LEVELS 10
 int OTC = 0;
 int codeCount = 0;
 int codeLine = -1;
@@ -96,8 +96,7 @@ int main(int argc, char *argv[]) {
         OTC = strsAreEqual(argv[1], "-v");
         
     }
-
-   
+    
     filename = IFS;
     
     // read the input from file
@@ -120,8 +119,8 @@ int main(int argc, char *argv[]) {
     int x = 0; int y = 0;
     // declare a reg[bp][sp] array
     // initialize array to 0's
-    int bpsp[codeCount][2];
-    for (x = 0; x < codeCount; x++){
+    int bpsp[600][2]; // codeCount
+    for (x = 0; x < 600; x++){ // codeCount
         for (y = 0; y < 2; y++){
             bpsp[x][y] = 0;
         }
@@ -306,7 +305,7 @@ void exeInstruction(){
                     break;
                 case read:
                     
-                    sp -= 1;
+                    sp += 1;
                     int i = 0;
                     printf("Enter an SIO code into stack:");
                     scanf("%d", &i);
