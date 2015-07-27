@@ -402,7 +402,7 @@ void exeStackOP(){
  */
 int base(int level, int b){
     while (level > 0){
-        b = stack[b + 2];
+        b = stack[b + 1];
         level--;
     }
     return b;
