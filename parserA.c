@@ -30,12 +30,15 @@ int m_nTokVarFlag = 0;                      // use to flag if token is variable 
 int m_nVariableStackAdrx = 4;               // variables start of address of first AR
 int m_nAR_Level = 0;                        // Activation Record first Level = 0;
 int m_nAR_LookUp = 0;                       // Activation record look up for existVar, existConst, existProc
+int m_nAR_Found = 0;                        // used during variable, constant proc search, outside of declarations
+int m_nARLoop = 0;                          // used to loop in the search of records
+int m_nProcCall = 1;
 #define MAX_AR_LEVELS 10                    // maximum amount of procedure AR levels
 
 struct NODE *gListHead = NULL;              // global list head for parsing
 struct NODE *gFreeListHead = NULL;          // global list head in case of error printing, free malloc from this pointer
 
-#define MAX_CODE_LENGTH 30                 // max amount of tokenized instructions symbols
+#define MAX_CODE_LENGTH 500                 // max amount of tokenized instructions symbols
 int OTC = 0;                                // Output to Console Flag
 
 int m_nVarCount = 0;                        // keep track of how many variables are declared
@@ -134,7 +137,7 @@ int main(int argc, char *argv[]) {
         m_n_inputTokens++; // increase the count of token read in
         
     }
-
+    
     
     // close the input file
     fclose(ifp);
@@ -357,6 +360,7 @@ void const_decl(){
             printError(err36, "375 ");
         }
         
+        m_nARLoop = 0; // set up name search to loop = false
         // check if constant exist already as variable, constant or procedure
         if ( existVar(m_cCurrentTokenStr) || existConst(m_cCurrentTokenStr) || existProc(m_cCurrentTokenStr) ){
             // error constant already declared as a variable or procedure name
@@ -426,6 +430,8 @@ void var_decl(){
             printError(err36, "466 ");
         }
         
+        m_nARLoop = 0; // set up name search to loop = false
+        
         if ( existVar(m_cCurrentTokenStr) || existConst(m_cCurrentTokenStr) || existProc(m_cCurrentTokenStr) ){
             // error variable already declared as a variable or procedure name
             printError(err46, "474 ");
@@ -442,7 +448,7 @@ void var_decl(){
         singleNamerecord.adr = m_nVariableStackAdrx;// + m_nVarCount++; //4
         m_nVarCount++;
         // set the lelvel of the constant
-		singleNamerecord.level = m_nAR_Level;
+        singleNamerecord.level = m_nAR_Level;
         
         // store the created single Name record into the array
         namerecord_table[m_nAR_Level][m_nNameRecordCount++] = singleNamerecord;
@@ -467,6 +473,7 @@ void var_decl(){
 void proc_decl(){
     
     namerecord_t singleNamerecord;  // single Var, Const or Proc record
+    int procCodeLines = m_nCodeLineCount;
     
     if ( gListHead == NULL){
         // error reading the current token from getNextTokenNode
@@ -482,14 +489,11 @@ void proc_decl(){
         if (m_nCurrentToken != identsym) {
             printError(err38, "526 ");
         }
-        
+        m_nARLoop = 0; // set up name search to loop = false
         // check if variable exist already as variable, constant or procedure
         if ( existVar(m_cCurrentTokenStr) || existConst(m_cCurrentTokenStr) || existProc(m_cCurrentTokenStr) ){
             printError(err47, "531 ");
         }
-        
-        
-        
         
         strcpy(singleNamerecord.name, m_cCurrentTokenStr); // copy the name of the procedure
         
@@ -504,21 +508,21 @@ void proc_decl(){
         // store the created single Name record into the array
         namerecord_table[m_nAR_Level][m_nNameRecordCount++] = singleNamerecord;
         
-
+        
         
         //printf("procedure 549::kind %d, name %s addrx %d level %d\n", singleNamerecord.kind, singleNamerecord.name, singleNamerecord.adr, singleNamerecord.level);
-
+        
         //m_nCodeLineCount = 0;
         m_nAR_Level++;  // increase the level for each new procedure call
         m_nProcCount++; // increase the count of procedures declarations in the program
-		m_nTempNameRecordCount = m_nNameRecordCount;
+        m_nTempNameRecordCount = m_nNameRecordCount;
         m_nNameRecordCount = 0;     // reset the count for the new procedure 7/22/15
         m_nVariableStackAdrx = 0; // added 7/22/15
         m_nVariableStackAdrx += 4; // increase the variables starting address 7/22/15
         m_nVarCount = 0;    // added 7/20/15, to reset the count of variables in activation record
-		m_nConstCount = 0;
+        m_nConstCount = 0;
         m_nProcTempCodeLine = m_nCodeLineCount;
-		m_nCodeLineCount = 0;
+        //m_nCodeLineCount = 0;
         
         getNextTokenNode();
         
@@ -532,10 +536,6 @@ void proc_decl(){
         
         // ** when increasing the AR level, you must also increase the stack space
         process_Block();
-        // create the codeline for jump // need to insert it at index 0 of codeLine array for first
-        // procedure call
-        //enterCode(jmp, 0, m_nProcTempCodeLine );
-       
         
         if (m_nCurrentToken != semicolonsym) {
             printError(err40, "566 ");
@@ -543,15 +543,17 @@ void proc_decl(){
         
         getNextTokenNode();
     }
-    codeLines[m_nAR_Level][0].M = m_nCodeLineCount + 1;
-     enterCode(opr, 0, 0); // return from procedure
+    procCodeLines = m_nCodeLineCount - procCodeLines;
+    //printf("\n%d procedure code lines \n", (procCodeLines));
+    codeLines[m_nAR_Level][0].M = (procCodeLines  + 1);// m_nCodeLineCount
+    enterCode(opr, 0, 0); // return from procedure
     // return to the previous AR after exiting procedure processing
     if (m_nAR_Level) {
         m_nAR_Level--;
     }
-	m_nCodeLineCount = m_nProcTempCodeLine;
-	m_nNameRecordCount = m_nTempNameRecordCount;
-    // return normally from procedure
+    
+    m_nNameRecordCount = m_nTempNameRecordCount;
+    
     return;
     
 }
@@ -559,7 +561,7 @@ void proc_decl(){
 
 void process_STATEMENT(){
     
-	int LevelFound = 0;
+    int LevelFound = 0, nLevel;
     int currentCodeLine = 0;
     int beginWhileLine = 0;
     int endWhileLine = 0;
@@ -573,12 +575,14 @@ void process_STATEMENT(){
     switch (m_nCurrentToken) {
             
         case identsym:      // token is of kind identsym
+            m_nARLoop = 1; // loop trhu AR to see if variable is declared in current AR or parent AR
             
             if ( !( nRecordFoundIndex = existVar(m_cCurrentTokenStr) )){
                 printError(err11, " 606");
             }
             // fix the offset return from existVar i + 1;
             nRecordFoundIndex -= 1;
+            nLevel = (m_nAR_Level - m_nAR_Found);
             //printf("variable %s address %d\n", namerecord_table[nRecordFoundIndex].name, namerecord_table[nRecordFoundIndex].adr);
             
             getNextTokenNode();
@@ -591,8 +595,8 @@ void process_STATEMENT(){
             // expression
             process_EXPRESSION();
             // create a code line for VM
-			LevelFound = m_nAR_Level - namerecord_table[m_nAR_Level][nRecordFoundIndex].level;
-			enterCode(sto, LevelFound, namerecord_table[m_nAR_Level][nRecordFoundIndex].adr);
+            //LevelFound = m_nAR_Level - namerecord_table[m_nAR_Found][nRecordFoundIndex].level;
+            enterCode(sto, nLevel, namerecord_table[m_nAR_Found][nRecordFoundIndex].adr);
             
             break;
         case callsym:
@@ -608,7 +612,10 @@ void process_STATEMENT(){
             }
             nRecordFoundIndex -= 1;
             // create a code line for VM
-            enterCode(cal, namerecord_table[m_nAR_Level][nRecordFoundIndex].level, m_nProcTempCodeLine);
+            enterCode(cal, namerecord_table[m_nAR_Level][nRecordFoundIndex].level, m_nProcTempCodeLine);//m_nProcTempCodeLine);// +
+            if (m_nProcCall) {
+                m_nProcCall = 0;
+            }
             
             getNextTokenNode();
             
@@ -655,20 +662,20 @@ void process_STATEMENT(){
             codeLines[m_nAR_Level][currentCodeLine].M = m_nCodeLineCount;
             
             break;
-        
+            
         case elsesym:
-                codeLines[m_nAR_Level][m_nIfCodeLine].M = m_nCodeLineCount + 1;
-                currentCodeLine = m_nIfCodeLine = m_nCodeLineCount;
-                enterCode(jmp, 0, 0);
-                // gettoken
-                getNextTokenNode();
-                // get current VM codeLine
-                currentCodeLine = m_nCodeLineCount;
-				
-                //statement
-                process_STATEMENT();
-                codeLines[m_nAR_Level][m_nIfCodeLine].M = m_nCodeLineCount;
-				
+            codeLines[m_nAR_Level][m_nIfCodeLine].M = m_nCodeLineCount + 1;
+            currentCodeLine = m_nIfCodeLine = m_nCodeLineCount;
+            enterCode(jmp, 0, 0);
+            // gettoken
+            getNextTokenNode();
+            // get current VM codeLine
+            currentCodeLine = m_nCodeLineCount;
+            
+            //statement
+            process_STATEMENT();
+            codeLines[m_nAR_Level][m_nIfCodeLine].M = m_nCodeLineCount;
+            
             
             break;
             
@@ -703,6 +710,7 @@ void process_STATEMENT(){
         case writesym:
             
             getNextTokenNode();
+            m_nARLoop = 1; // loop trhu AR to see if variable is declared in current AR or parent AR
             
             if (m_nCurrentToken != identsym) {
                 // token was not identifier
@@ -714,12 +722,13 @@ void process_STATEMENT(){
             if ( (nRecordFoundIndex = existVar(m_cCurrentTokenStr)) || (nRecordFoundIndex = existConst(m_cCurrentTokenStr)) ){
                 
                 nRecordFoundIndex -= 1; // fix the offset of 1, i + 1 from the return
+                nLevel = (m_nAR_Level - m_nAR_Found);
                 // get the record information
-                if (namerecord_table[m_nAR_Level][nRecordFoundIndex].kind == lexConstant) { // constant
+                if (namerecord_table[m_nAR_Found][nRecordFoundIndex].kind == lexConstant) { // constant
                     enterCode(lit, 0, namerecord_table[m_nAR_Level][nRecordFoundIndex].val);
                 }
-                if (namerecord_table[m_nAR_Level][nRecordFoundIndex].kind == lexVar) { // variable
-                    enterCode(lod, 0, namerecord_table[m_nAR_Level][nRecordFoundIndex].adr);
+                if (namerecord_table[m_nAR_Found][nRecordFoundIndex].kind == lexVar) { // variable
+                    enterCode(lod, nLevel, namerecord_table[m_nAR_Found][nRecordFoundIndex].adr);
                 }
                 // enter new VM code for SIO
                 enterCode(sio , 0, 0);
@@ -743,15 +752,17 @@ void process_STATEMENT(){
             }
             
             nRecordFoundIndex = 0;
+            m_nARLoop = 1; // loop trhu AR to see if variable is declared in current AR or parent AR
             if ( ! (nRecordFoundIndex = existVar(m_cCurrentTokenStr)) ){
                 printError(err12, "870 ");
                 
             }
             nRecordFoundIndex -= 1; // reset the offset from existVar return i + 1
+            nLevel = (m_nAR_Level - m_nAR_Found);
             // create a code line for VM read
             enterCode(sio, 0, 1);
             // create a code line for VM store
-            enterCode(sto, 0, namerecord_table[m_nAR_Level][nRecordFoundIndex].adr);
+            enterCode(sto, 0, namerecord_table[m_nAR_Found][nRecordFoundIndex].adr);
             
             getNextTokenNode();
             
@@ -837,6 +848,7 @@ void process_TERM(){
 void process_FACTOR(){
     
     int nRecordFoundIndex = 0;
+    int nLevel = 0;
     
     
     if ( gListHead == NULL){
@@ -850,17 +862,19 @@ void process_FACTOR(){
             
         case identsym:
             
+            m_nARLoop = 1; // loop trhu AR to see if variable is declared in current AR or parent AR
             // check if variable exist or not, if it does not exit, error11
             
             if ( (nRecordFoundIndex = existVar(m_cCurrentTokenStr)) || (nRecordFoundIndex = existConst(m_cCurrentTokenStr)) ){
                 nRecordFoundIndex -= 1; // adjust the offset from existVar or existConst return of i + 1 ;
+                nLevel = (m_nAR_Level - m_nAR_Found);
                 
-                if (namerecord_table[m_nAR_Level][nRecordFoundIndex].kind == lexConstant){
-                    enterCode(lit, 0, namerecord_table[m_nAR_Level][nRecordFoundIndex].val);
+                if (namerecord_table[m_nAR_Found][nRecordFoundIndex].kind == lexConstant){
+                    enterCode(lit, 0, namerecord_table[m_nAR_Found][nRecordFoundIndex].val);
                 }
                 
-                if (namerecord_table[m_nAR_Level][nRecordFoundIndex].kind == lexVar){
-                    enterCode(lod  , 0, namerecord_table[m_nAR_Level][nRecordFoundIndex].adr);
+                if (namerecord_table[m_nAR_Found][nRecordFoundIndex].kind == lexVar){
+                    enterCode(lod  , nLevel, namerecord_table[m_nAR_Found][nRecordFoundIndex].adr);
                 }
                 
             } else {
@@ -994,40 +1008,66 @@ int existVar(char varName[]){
     
     int i = 0, j = 0;
     m_nAR_LookUp = m_nAR_Level;
-    for (i = 0; i < m_nNameRecordCount; i++) {
+    m_nAR_Found = m_nAR_LookUp;
+    
+    do {
         
-	        if ( strsAreEqual(namerecord_table[m_nAR_Level][i].name, varName) & (namerecord_table[m_nAR_Level][i].kind == lexVar) ) {
-            return i + 1;
+        m_nAR_Found = m_nAR_LookUp;
+        for (i = 0; i < MAX_CODE_LENGTH; i++) {
+            if (namerecord_table[m_nAR_LookUp][i].kind == 0){ i = MAX_CODE_LENGTH; }
+            if ( strsAreEqual(namerecord_table[m_nAR_LookUp][i].name, varName) & (namerecord_table[m_nAR_LookUp][i].kind == lexVar) ) {
+                return i + 1;
+            }
         }
-    }
+        m_nAR_LookUp--;
+        
+    } while (m_nARLoop && (m_nAR_LookUp >= 0) );
     
     return 0;
 }
 
 int existConst(char constName[]){
     
-    int i = 0;
     
-    for (i = 0; i < m_nNameRecordCount; i++) {
+    int i = 0, j = 0;
+    m_nAR_LookUp = m_nAR_Level;
+    m_nAR_Found = m_nAR_LookUp;
+    
+    do {
+        m_nAR_Found = m_nAR_LookUp;
         
-        if ( strsAreEqual(namerecord_table[m_nAR_Level][i].name, constName) & (namerecord_table[m_nAR_Level][i].kind == lexConstant) ) {
-            return i + 1;
+        for (i = 0; i < MAX_CODE_LENGTH; i++) {
+            if (namerecord_table[m_nAR_LookUp][i].kind == 0){ i = MAX_CODE_LENGTH; }
+            if ( strsAreEqual(namerecord_table[m_nAR_LookUp][i].name, constName) & (namerecord_table[m_nAR_LookUp][i].kind == lexConstant) ) {
+                return i + 1;
+            }
         }
-    }
+        
+        m_nAR_LookUp--;
+        
+    } while (m_nARLoop && (m_nAR_LookUp >= 0) );
     
     return 0;
 }
 
 int existProc(char procName[]){
     
-    int i = 0;
+    int i = 0, j = 0;
+    m_nAR_LookUp = m_nAR_Level;
+    m_nAR_Found = m_nAR_LookUp;
     
-    for (i = 0; i < m_nNameRecordCount; i++) {
+    do {
+        m_nAR_Found = m_nAR_LookUp;
         
-        if ( strsAreEqual(namerecord_table[m_nAR_Level][i].name, procName) & (namerecord_table[m_nAR_Level][i].kind == lexProc) ) {
-            return i + 1;
+        for (i = 0; i < MAX_CODE_LENGTH; i++) {
+            if (namerecord_table[m_nAR_LookUp][i].kind == 0){ i = MAX_CODE_LENGTH; }
+            if ( strsAreEqual(namerecord_table[m_nAR_LookUp][i].name, procName) & (namerecord_table[m_nAR_LookUp][i].kind == lexProc) ) {
+                return i + 1;
+            }
         }
-    }
+        m_nAR_LookUp--;
+        
+    } while (m_nARLoop && (m_nAR_LookUp >= 0) );
     
     return 0;
 }
@@ -1043,11 +1083,16 @@ int strsAreEqual(char * stt1, char *str2){
 // ------------------code processing ------------------------
 
 void enterCode(int nOPcode, int nLcode, int nMcode){
+    int i = 0;
+    
+    while (codeLines[m_nAR_Level][i].OP != -1) {
+        i++;
+    }
     
     // store the values into struct array
-    codeLines[m_nAR_Level][m_nCodeLineCount].OP = nOPcode;
-    codeLines[m_nAR_Level][m_nCodeLineCount].L = nLcode;
-    codeLines[m_nAR_Level][m_nCodeLineCount].M = nMcode;
+    codeLines[m_nAR_Level][i].OP = nOPcode;
+    codeLines[m_nAR_Level][i].L = nLcode;
+    codeLines[m_nAR_Level][i].M = nMcode;
     
     m_nCodeLineCount++;
     
@@ -1084,7 +1129,7 @@ void printCodeLinesTOFILE(){
     int j = 0;
     int printOffset = 0;
     if (m_nProcCount) {
-        printOffset = 1;
+        printOffset = 0;
     }
     for (j = m_nProcCount-printOffset; j >= 0 ; j--) {
         for (i = 0; i < MAX_CODE_LENGTH; i++) {
