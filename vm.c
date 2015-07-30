@@ -24,8 +24,8 @@
  * given constants by assigment */
 
 #define MAX_STACK_HEIGHT 2000
-#define MAX_CODE_LENGTH 500
-#define MAX_LEXI_LEVELS 10
+#define MAX_CODE_LENGTH 2000
+#define MAX_LEXI_LEVELS 30
 int OTC = 0;
 int codeCount = 0;
 int codeLine = -1;
@@ -150,6 +150,7 @@ int main(int argc, char *argv[]) {
             exeInstruction();
         }
         else {
+         
             endOfProgram();
             exit(EXIT_SUCCESS);
         }
@@ -300,14 +301,14 @@ void exeInstruction(){
             switch (esio){
                     
                 case pop:
-                    printf("%d\n", stack[sp]);
+                    printf("Write %d\n", stack[sp]);
                     sp -= 1;
                     break;
                 case read:
                     
                     sp += 1;
                     int i = 0;
-                    printf("Enter an SIO code into stack:");
+                    printf("Read: ");
                     scanf("%d", &i);
                     stack[sp] = i;
                     break;

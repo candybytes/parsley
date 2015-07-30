@@ -21,31 +21,36 @@
 #include "globals.h"
 
 int OTC = 0;
+int LineNumber = 0;
+int TokenCount = 1;
+int lexemeLine[1000] = {0};
+char *FILECLEANUP[] = {"lexemelist.txt", "lexemeline.txt", "lexemetable.txt"};
 
 
 //------------------ global constants and given constants by assigment -------
 
 //------------------- Read ahead function prototypes--------------
-void createFilePointers();
-int charCount(FILE *fp);
-void readInput(FILE *fp, char foo[]);
-void fileReadError(char fileName[], int reading);
-void cleanInput(FILE *fp, char src[], int count, char cleanSrc[]);
-int charType(char c);
-void splitInputTokens(char cleanSrc[], char *caCleanInputTokens[]);
-int isSpecialChar(char c);
-char *cleanInputTokenCalloc(int tknSize);
-void freeInputTokenCalloc(char *caCleanInputTokens[]);
-int isReserverdWord(char *str);
-void IdentifyInputToken(char *caCleanInputTokens[], namerecord_t *record_table);
-int stringIsNumber(char *str);
-int isValidVariableAndNotReserved(char *str);
-int validSymbolPair(char c1, char c2);
-void initializeNamerecord_table(namerecord_t *record_table);
-void insertNamerecord_table(int RecordIndex, namerecord_t *record_table, int tknKind, int ComboChars, char c1, char c2, char *lexeme, int tknType);
-void printNamerecord_table(namerecord_t *record_table);
+void    createFilePointers();
+int     charCount(FILE *fp);
+void    readInput(FILE *fp, char foo[]);
+void    fileReadError(char fileName[], int reading);
+void    cleanInput(FILE *fp, char src[], int count, char cleanSrc[]);
+int     charType(char c);
+void    splitInputTokens(char cleanSrc[], char *caCleanInputTokens[]);
+int     isSpecialChar(char c);
+char    *cleanInputTokenCalloc(int tknSize);
+void    freeInputTokenCalloc(char *caCleanInputTokens[]);
+int     isReserverdWord(char *str);
+void    IdentifyInputToken(char *caCleanInputTokens[], namerecord_t *record_table);
+int     stringIsNumber(char *str);
+int     isValidVariableAndNotReserved(char *str);
+int     validSymbolPair(char c1, char c2);
+void    initializeNamerecord_table(namerecord_t *record_table);
+void    insertNamerecord_table(int RecordIndex, namerecord_t *record_table, int tknKind, int ComboChars, char c1, char c2, char *lexeme, int tknType);
+void    printNamerecord_table(namerecord_t *record_table);
 
 //--- Replacement functions for <ctype.h> Name changed slightly to avoid conflicting names -----// Added 6/12/2015
+int isNewLine(char c); // added 7/29/15
 int isAlpha(char c);
 int isDigit(char c);
 int isPunct(char c);
@@ -104,7 +109,6 @@ int main(int argc, char *argv[]) {
     // close the input file
     fclose(ifp);
     
-    
     // remove comments from input
     //cleanCode[] will contain -comments free- input
     cleanInput(cifp, code, count, cleanCode);
@@ -131,6 +135,19 @@ int main(int argc, char *argv[]) {
     
     // call freeInputTokenCalloc after finishing the use of the array
     freeInputTokenCalloc(caCleanInputTokens);
+    // print how many tokens are per line
+    FILE *lexLine = NULL;
+    lexLine = fopen("lexemeline.txt", "w");
+    for (i = 0; i < 1000; i++) {
+        
+        if(lexemeLine[i]) {
+            fprintf( lexLine, "%d ", lexemeLine[i] );
+        }
+        else {
+            continue;
+        }
+    }
+    fclose(lexLine);
     
     // program finished, if no error were found, it will reach this point
     
@@ -260,7 +277,7 @@ void cleanInput(FILE *fp, char src[], int count, char cleanSrc[]){
     int i = 0;
     
     while (i < count) {
-        // check if this is the begiining of a comment block
+        // check if this is the begining of a comment block
         if (src[i] == '/' && p == 1) {
             if (src[i + 1] == '*') {
                 // set print to false and skip the initial comment "/*" signal
@@ -285,6 +302,7 @@ void cleanInput(FILE *fp, char src[], int count, char cleanSrc[]){
             fprintf( fp, "%c", src[i] );
             // copy input code without comments into new array
             cleanSrc[ m_nCleanCount++] = src[i];
+            
         }
         
         i++;
@@ -366,6 +384,7 @@ void splitInputTokens(char cleanSrc[], char *caCleanInputTokens[]){
             tkn[j++] = cleanSrc[i++];
             
         }
+        
         // check if this is a new line or space (empty character)
         if ( isSpecialChar(cleanSrc[i]) ||(charType(cleanSrc[i]) == 0 ) || curCharIsSpecial ) {
             // if at least one chacter is in local token array, print it and reset token
@@ -376,12 +395,19 @@ void splitInputTokens(char cleanSrc[], char *caCleanInputTokens[]){
                 caCleanInputTokens[m_nCleanInputTokens] = cleanInputTokenCalloc(j);
                 strcpy(caCleanInputTokens[m_nCleanInputTokens], tkn);
                 m_nCleanInputTokens++;
+                lexemeLine[LineNumber] = TokenCount++; // store the number of tokens in this line
                 
             }
             
             // reset local token array
             memset(tkn, 0, sizeof(tkn));
             j = 0;
+            
+            // count how many new line char are in code
+            if ( isNewLine(cleanSrc[i]) ){
+                LineNumber++;
+                TokenCount = 1;
+            }
             
             // check if this is a new line or space (empty character)
             if  (charType(cleanSrc[i]) == 0 ){
@@ -712,6 +738,10 @@ int isPunct(char c){
     
 }
 
+int isNewLine(char c){
+    return (int)c == 13 || (int)c == 10 ? 1 : 0;
+}
+
 /*
  *  initializeNamerecord_table(namerecord_t *record_table)
  *  set the default values for the namerecord_t record_table
@@ -725,7 +755,6 @@ void initializeNamerecord_table(namerecord_t *record_table){
         record_table[i].kind = 0;           // constant = 1; var = 2, proc = 3
         if ( strcpy(record_table[i].name, "") == NULL) {
             printError(err33, "Namerecord_table");
-            //printf("Error: fail creating space to store token string\n");
             exit(EXIT_FAILURE);
         };                                  // name up to 11 characters long, 11 + 1 for \0
         record_table[i].val = 0;            // number (ASCII value)
@@ -825,6 +854,7 @@ void printNamerecord_table(namerecord_t *record_table){
  *  Print the string that is represented by the error number passed
  */
 void printError(int ErrorNumber, char *strToken){
+    int i = 0;
     // always print what caused the error, then if error number is identified
     // print error information, else general message outside "IF" statement
     if(strToken) {
@@ -840,6 +870,13 @@ void printError(int ErrorNumber, char *strToken){
     // if error number is not in array, still print there is an error, but number
     // not recognized
     printf("Error, ErrorNumber %d not recognized\n", ErrorNumber);
+    // empty the files to avoid trash print by sybsequent components of the virtual machine
+    FILE *fpClean = NULL;
+    for (i = 0; i < 3; i++) {
+        fpClean = fopen(FILECLEANUP[i],"w");
+        fclose(fpClean);
+    }
+    fpClean = NULL;
     return;
     
 }

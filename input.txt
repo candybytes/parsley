@@ -1,9 +1,6 @@
-var a, b, max;
+var x, w;
 begin
-	read a;
-	read b;
-	max := b;
-	if a > b then max := a;
-	write max;
-end .
-
+	x := 4;
+	read w;
+	write w;
+end.
